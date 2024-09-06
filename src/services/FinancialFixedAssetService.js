@@ -12,18 +12,30 @@ const uploadService = (file, period, onUploadProgress) => {
   });
 };
 
-const saveService = () => {
-  return null;
+const saveService = (period, onUploadProgress) => {
+  const url = `${process.env.REACT_APP_URL_API_FINANCIAL_FIXED_ASSETS}?period=${encodeURIComponent(period)}`;
+  return http.post(url, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+    onUploadProgress,
+  });
 }
 
-const projectionService = () => {
-  return null;
+const generateTemporaryDeductionsService = (period, account, onUploadProgress) => {
+  const url = `${process.env.REACT_APP_URL_API_FINANCIAL_FIXED_ASSETS}/projection?period=${encodeURIComponent(period)}&account=${encodeURIComponent(account)}`;
+  return http.post(url, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+    onUploadProgress,
+  });
 }
 
 const FinancialFixedAssetService = {
   uploadService,
   saveService,
-  projectionService
+  generateTemporaryDeductionsService
 };
 
 export default FinancialFixedAssetService;

@@ -1,13 +1,13 @@
 import React from "react";
 import FileUpload from "../components/FileUpload";
+import Header from "../components/Header";
 
 const Home = () => {
     return (
         <>
-            {/* Begin page content */}
             <main className="flex-shrink-0">
                 <div className="container">
-                    <FileUpload />
+                    <Header />
                 </div>
             </main>
         </>

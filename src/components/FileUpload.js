@@ -1,6 +1,6 @@
 // src/components/FileUpload.js
 
-import React, { useState } from "react";
+import React, {useState} from "react";
 import FinancialFixedAssetService from "../services/FinancialFixedAssetService";
 import CustomDatePicker from "./CustomDatePicker"; // Asegúrate de la ruta correcta
 import "react-datepicker/dist/react-datepicker.css";
@@ -44,59 +44,144 @@ const UploadFiles = () => {
                 setProgress(0);
                 setMessage("No se pudo subir el archivo.");
                 setCurrentFile(undefined);
+                setSelectedFiles(undefined);
             });
 
         setShowAlert(true);
-        setSelectedFiles(undefined);
+    };
+
+    const saveDataFile = () => {
+        setProgress(0);
+
+        if (!period) {
+            setCode("");
+            setMessage("Por favor seleccione un periodo.");
+            return;
+        }
+
+        const periodFormatted = period.toISOString().split('T')[0]; // YYYY-MM-DD
+
+        FinancialFixedAssetService.saveService(periodFormatted, (event) => {
+            setProgress(Math.round((100 * event.loaded) / event.total));
+        })
+            .then((response) => {
+                setCode(response.data.code);
+                setMessage(response.data.message);
+            })
+            .catch(() => {
+                setCode("");
+                setProgress(0);
+                setMessage("No se pudo guardar la información.");
+                setCurrentFile(undefined);
+                setSelectedFiles(undefined);
+            });
+
+        setShowAlert(true);
+    };
+
+    const generateTemporaryDeductions = () => {
+        setProgress(0);
+
+        if (!period) {
+            setCode("");
+            setMessage("Por favor seleccione un periodo.");
+            return;
+        }
+
+        const periodFormatted = period.toISOString().split('T')[0]; // YYYY-MM-DD
+
+        FinancialFixedAssetService.generateTemporaryDeductionsService(periodFormatted, '332',(event) => {
+            setProgress(Math.round((100 * event.loaded) / event.total));
+        })
+            .then((response) => {
+                setCode(response.data.code);
+                setMessage(response.data.message);
+            })
+            .catch(() => {
+                setCode("");
+                setProgress(0);
+                setMessage("No se pudo generar las deducciones temporales.");
+                setCurrentFile(undefined);
+                setSelectedFiles(undefined);
+            });
+
+        setShowAlert(true);
     };
 
     const alertClass = (code === "00" ? "alert alert-success" : "alert alert-danger");
 
     return (
-        <div>
-            <div className="form-group">
-                <label htmlFor="period" className="form-label">Seleccione el periodo:</label>
-                <CustomDatePicker
-                    selected={period}
-                    onChange={(date) => setPeriod(date)}
-                />
-            </div>
-
-            <div className="form-group">
-                <label className="btn btn-default">
-                    <input type="file" onChange={selectFile} />
-                </label>
-            </div>
-
-            {currentFile && (
-                <div className="progress">
-                    <div
-                        className="progress-bar progress-bar-info progress-bar-striped"
-                        role="progressbar"
-                        aria-valuenow={progress}
-                        aria-valuemin="0"
-                        aria-valuemax="100"
-                        style={{ width: progress + "%" }}
-                    >
-                        {progress}%
+        <main className="flex-shrink-0">
+            <div className="container">
+                <div className="row">
+                    <div className="d-flex gap-2">
+                        <label className="form-label">Seleccione el periodo:</label>
+                        <CustomDatePicker
+                            selected={period}
+                            onChange={(date) => setPeriod(date)}
+                        />
                     </div>
                 </div>
-            )}
 
-            <button
-                className="btn btn-success"
-                disabled={!selectedFiles || !period}
-                onClick={uploadFile}
-            >
-                Upload
-            </button>
-
-            {showAlert && (
-                <div className={alertClass} role="alert">
-                    {message}
+                <div className="row">
+                    <div className="col">
+                        <label htmlFor="formFile" className="form-label"></label>
+                        <input id="formFile" className="form-control" type="file" onChange={selectFile}/>
+                    </div>
                 </div>
-            )}
-        </div>
+
+                <div className="row mb-3">
+                    {currentFile && (
+                        <div className="progress">
+                            <div
+                                className="progress-bar progress-bar-info progress-bar-striped"
+                                role="progressbar"
+                                aria-valuenow={progress}
+                                aria-valuemin="0"
+                                aria-valuemax="100"
+                                style={{width: progress + "%"}}
+                            >
+                                {progress}%
+                            </div>
+                        </div>
+                    )}
+                </div>
+
+                <div className="row mb-3">
+                    <div className="d-flex gap-2">
+                        <button
+                            className="btn btn-primary"
+                            disabled={!selectedFiles || !period}
+                            onClick={uploadFile}
+                        >
+                            Subir Archivo
+                        </button>
+                        <button
+                            className="btn btn-primary"
+                            disabled={!selectedFiles || !period}
+                            onClick={saveDataFile}
+                        >
+                            Guardar Información
+                        </button>
+                        <button
+                            className="btn btn-primary"
+                            disabled={!selectedFiles || !period}
+                            onClick={generateTemporaryDeductions}
+                        >
+                            Generar Proyección
+                        </button>
+                    </div>
+                </div>
+
+                <div className="row mb-3">
+                    {showAlert && (
+                        <div className={alertClass} role="alert">
+                            {message}
+                        </div>
+                    )}
+                </div>
+            </div>
+        </main>
     );
 };
 

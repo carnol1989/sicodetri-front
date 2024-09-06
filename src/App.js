@@ -17,7 +17,6 @@ function App() {
     return (
         <div>
             <FixedAssetContext.Provider value={{fixedAssetList}}>
-                <Header/>
                 <GlobalRouter></GlobalRouter>
                 <Footer/>
             </FixedAssetContext.Provider>
