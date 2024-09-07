@@ -1,11 +1,9 @@
-// src/components/FileUpload.js
-
 import React, {useState} from "react";
 import FinancialFixedAssetService from "../services/FinancialFixedAssetService";
-import CustomDatePicker from "./CustomDatePicker"; // Asegúrate de la ruta correcta
+import CustomDatePicker from "../components/CustomDatePicker";
 import "react-datepicker/dist/react-datepicker.css";
 
-const UploadFiles = () => {
+const FileUpload = () => {
     const [selectedFiles, setSelectedFiles] = useState(undefined);
     const [currentFile, setCurrentFile] = useState(undefined);
     const [progress, setProgress] = useState(0);
@@ -13,6 +11,7 @@ const UploadFiles = () => {
     const [message, setMessage] = useState("");
     const [period, setPeriod] = useState("");
     const [showAlert, setShowAlert] = useState(false);
+    const [activeSave, setActiveSave] = useState(true);
 
     const selectFile = (event) => {
         setSelectedFiles(event.target.files);
@@ -38,6 +37,7 @@ const UploadFiles = () => {
             .then((response) => {
                 setCode(response.data.code);
                 setMessage(response.data.message);
+                setActiveSave(false);
             })
             .catch(() => {
                 setCode("");
@@ -45,6 +45,7 @@ const UploadFiles = () => {
                 setMessage("No se pudo subir el archivo.");
                 setCurrentFile(undefined);
                 setSelectedFiles(undefined);
+                setActiveSave(true);
             });
 
         setShowAlert(true);
@@ -72,35 +73,6 @@ const UploadFiles = () => {
                 setCode("");
                 setProgress(0);
                 setMessage("No se pudo guardar la información.");
-                setCurrentFile(undefined);
-                setSelectedFiles(undefined);
-            });
-
-        setShowAlert(true);
-    };
-
-    const generateTemporaryDeductions = () => {
-        setProgress(0);
-
-        if (!period) {
-            setCode("");
-            setMessage("Por favor seleccione un periodo.");
-            return;
-        }
-
-        const periodFormatted = period.toISOString().split('T')[0]; // YYYY-MM-DD
-
-        FinancialFixedAssetService.generateTemporaryDeductionsService(periodFormatted, '332',(event) => {
-            setProgress(Math.round((100 * event.loaded) / event.total));
-        })
-            .then((response) => {
-                setCode(response.data.code);
-                setMessage(response.data.message);
-            })
-            .catch(() => {
-                setCode("");
-                setProgress(0);
-                setMessage("No se pudo generar las deducciones temporales.");
                 setCurrentFile(undefined);
                 setSelectedFiles(undefined);
             });
@@ -158,17 +130,10 @@ const UploadFiles = () => {
                         </button>
                         <button
                             className="btn btn-primary"
-                            disabled={!selectedFiles || !period}
+                            disabled={!selectedFiles || !period || activeSave}
                             onClick={saveDataFile}
                         >
                             Guardar Información
-                        </button>
-                        <button
-                            className="btn btn-primary"
-                            disabled={!selectedFiles || !period}
-                            onClick={generateTemporaryDeductions}
-                        >
-                            Generar Proyección
                         </button>
                     </div>
                 </div>
@@ -185,4 +150,4 @@ const UploadFiles = () => {
     );
 };
 
-export default UploadFiles;
+export default FileUpload;

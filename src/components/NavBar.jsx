@@ -24,6 +24,22 @@ const NavBar = () => {
                             <li className="nav-item">
                                 <Link className="nav-link" to="/upload">Cargar Archivo</Link>
                             </li>
+                            <li className="nav-item dropdown">
+                                <a className="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Generar Proyeccion
+                                </a>
+                                <ul className="dropdown-menu" aria-labelledby="navbarDropdown">
+                                    <li><Link className="dropdown-item" to="/temporary-deduction">Deducciones Temporales</Link></li>
+                                </ul>
+                            </li>
+                            <li className="nav-item dropdown">
+                                <a className="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Reporte
+                                </a>
+                                <ul className="dropdown-menu" aria-labelledby="navbarDropdown">
+                                    <li><Link className="dropdown-item" to="/temporary-deduction">Deducciones Temporales</Link></li>
+                                </ul>
+                            </li>
                         </ul>
                     </div>
                 </div>
