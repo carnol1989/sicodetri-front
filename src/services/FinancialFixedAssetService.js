@@ -66,11 +66,9 @@ const generateReportTaxBookService = async (year, mainCode, accountingAccount, s
     });
     // Accede a los headers
     const headers = response.headers;
-    console.log("Headers de la respuesta:", headers);
 
     // Puedes obtener valores específicos de los headers, por ejemplo:
     const contentDisposition = headers['content-disposition'];
-    console.log("Content-Disposition Header:", contentDisposition);
 
     // Crea una URL para el archivo
     const fileURL = window.URL.createObjectURL(response.data);
@@ -82,7 +80,8 @@ const generateReportTaxBookService = async (year, mainCode, accountingAccount, s
     let fileName = 'archivo.xlsx';
     if (contentDisposition) {
       const fileNameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
-      fileName = fileNameMatch[1];
+      if (fileNameMatch !== null && fileNameMatch !== undefined)
+        fileName = fileNameMatch[1];
     }
 
     a.href = fileURL;
