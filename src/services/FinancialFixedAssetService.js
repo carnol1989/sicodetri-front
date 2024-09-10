@@ -32,10 +32,73 @@ const generateTemporaryDeductionsService = (period, account, onUploadProgress) =
   });
 }
 
+const generateReportTaxBookService = async (year, mainCode, accountingAccount, startAcquisitionDate, endAcquisitionDate,
+                                            startDateUse, endDateUse, onDownloadProgress) => {
+  // Define los parámetros
+  const params = {
+    fileType: "xlsx",
+    year: year,
+    mainCode: mainCode,
+    accountingAccount: accountingAccount,
+    startAcquisitionDate: startAcquisitionDate,
+    endAcquisitionDate: endAcquisitionDate,
+    startDateUse: startDateUse,
+    endDateUse: endDateUse
+  };
+
+  // Codifica cada valor de parámetro
+  const encodedParams = Object.keys(params)
+      .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`)
+      .join('&');
+
+  // Construye la URL
+  const url = `${process.env.REACT_APP_URL_API_FINANCIAL_FIXED_ASSETS}/report?${encodedParams}`;
+
+  try {
+    // Realiza la solicitud GET para descargar el archivo
+    const response = await http.get(url, {
+      responseType: 'blob',
+      onDownloadProgress: (progressEvent) => {
+        if (onDownloadProgress) {
+          onDownloadProgress(progressEvent);
+        }
+      }
+    });
+    // Accede a los headers
+    const headers = response.headers;
+    console.log("Headers de la respuesta:", headers);
+
+    // Puedes obtener valores específicos de los headers, por ejemplo:
+    const contentDisposition = headers['content-disposition'];
+    console.log("Content-Disposition Header:", contentDisposition);
+
+    // Crea una URL para el archivo
+    const fileURL = window.URL.createObjectURL(response.data);
+    const a = document.createElement('a');
+    a.setAttribute('style', 'display:none');
+    document.body.appendChild(a);
+
+    // Si quieres obtener el nombre del archivo del header "Content-Disposition"
+    let fileName = 'archivo.xlsx';
+    if (contentDisposition) {
+      const fileNameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+      fileName = fileNameMatch[1];
+    }
+
+    a.href = fileURL;
+    a.download = fileName
+    a.click();
+  } catch (error) {
+    console.error("Error descargando el archivo:", error);
+    throw new Error("Error al descargar el reporte");
+  }
+};
+
 const FinancialFixedAssetService = {
   uploadService,
   saveService,
-  generateTemporaryDeductionsService
+  generateTemporaryDeductionsService,
+  generateReportTaxBookService
 };
 
 export default FinancialFixedAssetService;

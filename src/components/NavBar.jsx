@@ -37,7 +37,7 @@ const NavBar = () => {
                                     Reporte
                                 </a>
                                 <ul className="dropdown-menu" aria-labelledby="navbarDropdown">
-                                    <li><Link className="dropdown-item" to="/temporary-deduction">Deducciones Temporales</Link></li>
+                                    <li><Link className="dropdown-item" to="/report-tax-book">Libro Tributario de Activo Fijo</Link></li>
                                 </ul>
                             </li>
                         </ul>

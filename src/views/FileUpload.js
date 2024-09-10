@@ -91,6 +91,7 @@ const FileUpload = () => {
                         <CustomDatePicker
                             selected={period}
                             onChange={(date) => setPeriod(date)}
+                            dateFormat="yyyy-MM"
                         />
                     </div>
                 </div>
