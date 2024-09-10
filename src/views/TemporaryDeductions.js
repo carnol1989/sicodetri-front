@@ -22,7 +22,10 @@ const TemporaryDeductions = () => {
         const periodFormatted = period.toISOString().split('T')[0]; // YYYY-MM-DD
 
         FinancialFixedAssetService.generateTemporaryDeductionsService(periodFormatted, '332',(event) => {
-            setProgress(Math.round((100 * event.loaded) / event.total));
+            if (event.lengthComputable) {
+                const progressPercentage = Math.round((100 * event.loaded) / event.total);
+                setProgress(progressPercentage);
+            }
         })
             .then((response) => {
                 setCode(response.data.code);
@@ -42,6 +45,9 @@ const TemporaryDeductions = () => {
     return (
         <main className="flex-shrink-0">
             <div className="container">
+                <div className="row mb-3">
+                    <h3>Gneración de Deducciones Temporales</h3>
+                </div>
                 <div className="row">
                     <div className="d-flex gap-2">
                         <label className="form-label">Seleccione el periodo:</label>

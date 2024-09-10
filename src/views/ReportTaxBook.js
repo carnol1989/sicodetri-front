@@ -8,13 +8,14 @@ const ReportTaxBook = () => {
     const [progress, setProgress] = useState(0);
     const [code, setCode] = useState("");
     const [message, setMessage] = useState("");
-    const [year, setYear] = useState(new Date());
-    const [mainCode, setMainCode] = useState("22.01.010862");
-    const [accountingAccount, setAccountingAccount] = useState("3321161001");
-    const [startAcquisitionDate, setStartAcquisitionDate] = useState(new Date("2007-12-31"));
-    const [endAcquisitionDate, setEndAcquisitionDate] = useState(new Date("2007-12-31"));
-    const [startDateUse, setStartDateUse] = useState(new Date("2007-12-31"));
-    const [endDateUse, setEndDateUse] = useState(new Date("2007-12-31"));
+    const [option, setOption] = useState("1");
+    const [year, setYear] = useState(null);
+    const [mainCode, setMainCode] = useState("");
+    const [accountingAccount, setAccountingAccount] = useState("");
+    const [startAcquisitionDate, setStartAcquisitionDate] = useState(null);
+    const [endAcquisitionDate, setEndAcquisitionDate] = useState(null);
+    const [startDateUse, setStartDateUse] = useState(null);
+    const [endDateUse, setEndDateUse] = useState(null);
 
     const generateReportTaxBook = async () => {
         setProgress(0);
@@ -24,7 +25,8 @@ const ReportTaxBook = () => {
         const startDateUseFormat = format(startDateUse, 'yyyy-MM-dd');
         const endDateUseFormat = format(endDateUse, 'yyyy-MM-dd');
 
-        await FinancialFixedAssetService.generateReportTaxBookService(
+        await FinancialFixedAssetService.generateReportsService(
+            option,
             yearFormat,
             mainCode,
             accountingAccount,
@@ -33,8 +35,10 @@ const ReportTaxBook = () => {
             startDateUseFormat,
             endDateUseFormat,
             (progressEvent) => {
-                const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-                setProgress(percent);
+                if (progressEvent.lengthComputable) {
+                    const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                    setProgress(percent);
+                }
             }
         );
     };
@@ -42,7 +46,10 @@ const ReportTaxBook = () => {
     return (
         <main className="flex-shrink-0">
             <div className="container">
-                <div className="row mt-3 mb-3">
+                <div className="row mb-3">
+                    <h3>Reporte: Libro Tributario de Activo Fijos</h3>
+                </div>
+                <div className="row mb-3">
                     <div className="col-md-4 text-end">
                         <label className="form-label">Seleccione el periodo:</label>
                     </div>
@@ -154,6 +161,7 @@ const ReportTaxBook = () => {
                     <div className="d-flex gap-2">
                         <button
                             className="btn btn-primary"
+                            disabled={!year || !startAcquisitionDate || !endAcquisitionDate || !startDateUse || !endDateUse}
                             onClick={generateReportTaxBook}
                         >
                             Exportar
