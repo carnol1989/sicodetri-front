@@ -85,6 +85,9 @@ const FileUpload = () => {
     return (
         <main className="flex-shrink-0">
             <div className="container">
+                <div className="row mb-3">
+                    <h3>Cargar Excel de Activo Fijos</h3>
+                </div>
                 <div className="row">
                     <div className="d-flex gap-2">
                         <label className="form-label">Seleccione el periodo:</label>

@@ -38,6 +38,7 @@ const NavBar = () => {
                                 </a>
                                 <ul className="dropdown-menu" aria-labelledby="navbarDropdown">
                                     <li><Link className="dropdown-item" to="/report-tax-book">Libro Tributario de Activo Fijo</Link></li>
+                                    <li><Link className="dropdown-item" to="/report-detail-depreciation">Detalle Depreciación Financiera y Tributaria</Link></li>
                                 </ul>
                             </li>
                         </ul>

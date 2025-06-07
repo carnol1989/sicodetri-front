@@ -24,7 +24,7 @@ const saveService = (period, onUploadProgress) => {
 
 const generateTemporaryDeductionsService = (period, account, onUploadProgress) => {
   const url = `${process.env.REACT_APP_URL_API_FINANCIAL_FIXED_ASSETS}/projection?period=${encodeURIComponent(period)}&account=${encodeURIComponent(account)}`;
-  return http.post(url, {
+  return http.post(url, {}, {
     headers: {
       "Content-Type": "application/json",
     },
@@ -32,10 +32,11 @@ const generateTemporaryDeductionsService = (period, account, onUploadProgress) =
   });
 }
 
-const generateReportTaxBookService = async (year, mainCode, accountingAccount, startAcquisitionDate, endAcquisitionDate,
+const generateReportsService = async (option, year, mainCode, accountingAccount, startAcquisitionDate, endAcquisitionDate,
                                             startDateUse, endDateUse, onDownloadProgress) => {
   // Define los parámetros
   const params = {
+    option: option,
     fileType: "xlsx",
     year: year,
     mainCode: mainCode,
@@ -97,7 +98,7 @@ const FinancialFixedAssetService = {
   uploadService,
   saveService,
   generateTemporaryDeductionsService,
-  generateReportTaxBookService
+  generateReportsService
 };
 
 export default FinancialFixedAssetService;
