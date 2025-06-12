@@ -23,7 +23,17 @@ const saveService = (period, onUploadProgress) => {
 }
 
 const generateTemporaryDeductionsService = (period, account, onUploadProgress) => {
-  const url = `${process.env.REACT_APP_URL_API_FINANCIAL_FIXED_ASSETS}/projection?period=${encodeURIComponent(period)}&account=${encodeURIComponent(account)}`;
+  const url = `${process.env.REACT_APP_URL_API_FINANCIAL_FIXED_ASSETS}/projection?type=TEMPORARY_DEDUCTIONS&period=${encodeURIComponent(period)}&account=${encodeURIComponent(account)}`;
+  return http.post(url, {}, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+    onUploadProgress,
+  });
+}
+
+const generateTemporaryAdditionsService = (period, account, onUploadProgress) => {
+  const url = `${process.env.REACT_APP_URL_API_FINANCIAL_FIXED_ASSETS}/projection?type=TEMPORARY_ADDITIONS&period=${encodeURIComponent(period)}&account=${encodeURIComponent(account)}`;
   return http.post(url, {}, {
     headers: {
       "Content-Type": "application/json",
@@ -98,6 +108,7 @@ const FinancialFixedAssetService = {
   uploadService,
   saveService,
   generateTemporaryDeductionsService,
+  generateTemporaryAdditionsService,
   generateReportsService
 };
 
