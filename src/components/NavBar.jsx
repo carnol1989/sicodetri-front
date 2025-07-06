@@ -31,6 +31,7 @@ const NavBar = () => {
                                 <ul className="dropdown-menu" aria-labelledby="navbarDropdown">
                                     <li><Link className="dropdown-item" to="/temporary-deduction">Deducciones Temporales</Link></li>
                                     <li><Link className="dropdown-item" to="/temporary-addition">Adiciones Temporales</Link></li>
+                                    <li><Link className="dropdown-item" to="/permanent-addition">Adiciones Permanentes</Link></li>
                                 </ul>
                             </li>
                             <li className="nav-item dropdown">
