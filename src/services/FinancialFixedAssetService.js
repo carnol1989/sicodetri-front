@@ -42,6 +42,16 @@ const generateTemporaryAdditionsService = (period, account, onUploadProgress) =>
   });
 }
 
+const generatePermanentAdditionsService = (period, account, onUploadProgress) => {
+  const url = `${process.env.REACT_APP_URL_API_FINANCIAL_FIXED_ASSETS}/projection?type=PERMANENT_ADDITIONS&period=${encodeURIComponent(period)}&account=${encodeURIComponent(account)}`;
+  return http.post(url, {}, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+    onUploadProgress,
+  });
+}
+
 const generateReportsService = async (option, year, mainCode, accountingAccount, startAcquisitionDate, endAcquisitionDate,
                                             startDateUse, endDateUse, onDownloadProgress) => {
   // Define los parámetros
@@ -109,6 +119,7 @@ const FinancialFixedAssetService = {
   saveService,
   generateTemporaryDeductionsService,
   generateTemporaryAdditionsService,
+  generatePermanentAdditionsService,
   generateReportsService
 };
 

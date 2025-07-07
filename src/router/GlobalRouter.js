@@ -9,6 +9,7 @@ import TemporaryDeductions from "../views/TemporaryDeductions";
 import TemporaryAdditions from "../views/TemporaryAdditions";
 import ReportTaxBook from "../views/ReportTaxBook";
 import ReportDetailDepreciation from "../views/ReportDetailDepreciation";
+import PermanentAdditions from "../views/PermanentAdditions";
 
 function GlobalRouter() {
     return (
@@ -19,6 +20,7 @@ function GlobalRouter() {
                 <Route path="/upload" element={<Layout><FileUpload /></Layout>} />
                 <Route path="/temporary-deduction" element={<Layout><TemporaryDeductions /></Layout>} />
                 <Route path="/temporary-addition" element={<Layout><TemporaryAdditions /></Layout>} />
+                <Route path="/permanent-addition" element={<Layout><PermanentAdditions /></Layout>} />
                 <Route path="/report-tax-book" element={<Layout><ReportTaxBook /></Layout>} />
                 <Route path="/report-detail-depreciation" element={<Layout><ReportDetailDepreciation /></Layout>} />
             </Routes>
