@@ -1,18 +1,10 @@
 import React from 'react';
-import {
-  render,
-  screen,
-  fireEvent,
-  waitFor
-} from '@testing-library/react';
-import ProjectionGenerator from './ProjectionGenerator';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import ProjectionGenerator from '../../src/components/ProjectionGenerator';
 
-jest.mock('./CustomDatePicker', () => {
+jest.mock('../../src/components/CustomDatePicker', () => {
   return ({ onChange }) => (
-    <button
-      data-testid="datepicker"
-      onClick={() => onChange(new Date('2025-07-11'))}
-    >
+    <button data-testid="datepicker" onClick={() => onChange(new Date('2025-07-11'))}>
       Select Period
     </button>
   );
@@ -24,25 +16,21 @@ describe('ProjectionGenerator', () => {
 
   it('1) inicial: muestra título, botón con clase disabled, sin progress ni alert', () => {
     const dummyService = jest.fn();
-    render(
-      <ProjectionGenerator title={title} serviceFn={dummyService} param={param} />
-    );
+    render(<ProjectionGenerator title={title} serviceFn={dummyService} param={param} />);
 
     expect(screen.getByText(title)).toBeInTheDocument();
     const button = screen.getByRole('button', { name: /generar proyección/i });
-    expect(button).toHaveClass('disabled');           // <── cambiado
+    expect(button).toHaveClass('disabled'); // <── cambiado
     expect(screen.queryByRole('progressbar')).toBeNull();
     expect(screen.queryByRole('alert')).toBeNull();
   });
 
   it('2) genera sin periodo muestra solo la alerta de validación', async () => {
     const dummyService = jest.fn();
-    render(
-      <ProjectionGenerator title={title} serviceFn={dummyService} param={param} />
-    );
+    render(<ProjectionGenerator title={title} serviceFn={dummyService} param={param} />);
 
     const button = screen.getByRole('button', { name: /generar proyección/i });
-    fireEvent.click(button);                          // ahora SI dispara generate()
+    fireEvent.click(button); // ahora SI dispara generate()
 
     const alert = await screen.findByRole('alert');
     expect(alert).toHaveClass('alert', 'alert-danger');
@@ -56,19 +44,13 @@ describe('ProjectionGenerator', () => {
       return Promise.resolve({ data: { code: '00', message: 'Éxito' } });
     });
 
-    render(
-      <ProjectionGenerator title={title} serviceFn={serviceFn} param={param} />
-    );
+    render(<ProjectionGenerator title={title} serviceFn={serviceFn} param={param} />);
 
     fireEvent.click(screen.getByTestId('datepicker'));
     fireEvent.click(screen.getByRole('button', { name: /generar proyección/i }));
 
     await waitFor(() => {
-      expect(serviceFn).toHaveBeenCalledWith(
-        '2025-07-11',
-        param,
-        expect.any(Function)
-      );
+      expect(serviceFn).toHaveBeenCalledWith('2025-07-11', param, expect.any(Function));
     });
 
     await waitFor(() => {
@@ -88,19 +70,13 @@ describe('ProjectionGenerator', () => {
       return Promise.reject(new Error('fail'));
     });
 
-    render(
-      <ProjectionGenerator title={title} serviceFn={serviceFn} param={param} />
-    );
+    render(<ProjectionGenerator title={title} serviceFn={serviceFn} param={param} />);
 
     fireEvent.click(screen.getByTestId('datepicker'));
     fireEvent.click(screen.getByRole('button', { name: /generar proyección/i }));
 
     await waitFor(() => {
-      expect(serviceFn).toHaveBeenCalledWith(
-        '2025-07-11',
-        param,
-        expect.any(Function)
-      );
+      expect(serviceFn).toHaveBeenCalledWith('2025-07-11', param, expect.any(Function));
     });
 
     await waitFor(() => {
@@ -121,9 +97,7 @@ describe('ProjectionGenerator', () => {
       return Promise.resolve({ data: { code: '00', message: 'Listo' } });
     });
 
-    render(
-      <ProjectionGenerator title={title} serviceFn={serviceFn} param={param} />
-    );
+    render(<ProjectionGenerator title={title} serviceFn={serviceFn} param={param} />);
 
     // 2) Seleccionamos período y disparamos generación
     fireEvent.click(screen.getByTestId('datepicker'));
@@ -131,11 +105,7 @@ describe('ProjectionGenerator', () => {
 
     // 3) Esperamos a que se llame al servicio
     await waitFor(() => {
-      expect(serviceFn).toHaveBeenCalledWith(
-        '2025-07-11',
-        param,
-        expect.any(Function)
-      );
+      expect(serviceFn).toHaveBeenCalledWith('2025-07-11', param, expect.any(Function));
     });
 
     // 4) Verificamos que el progressbar NO subió (permanece en 0%)

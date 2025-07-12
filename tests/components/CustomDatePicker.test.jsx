@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-  render,
-  screen,
-  createEvent,
-  fireEvent,
-  within
-} from '@testing-library/react';
+import { render, screen, createEvent, fireEvent, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 // ----- MOCK de react-datepicker con mocks internos -----
@@ -25,16 +19,14 @@ jest.mock('react-datepicker', () => {
     decreaseMonthMock,
     increaseMonthMock,
     default: ({
-                renderMonthContent,
-                renderCustomHeader,
-                className,
-                placeholderText,
-                onKeyDown
-              }) => {
+      renderMonthContent,
+      renderCustomHeader,
+      className,
+      placeholderText,
+      onKeyDown,
+    }) => {
       // 1) Simula renderMonthContent
-      const monthSpan = renderMonthContent(
-        0, 'Sh', 'Long', new Date(2021, 0, 1)
-      );
+      const monthSpan = renderMonthContent(0, 'Sh', 'Long', new Date(2021, 0, 1));
       // 2) Simula renderCustomHeader con los mocks
       const header = renderCustomHeader({
         date: new Date(2021, 0, 1),
@@ -43,7 +35,7 @@ jest.mock('react-datepicker', () => {
         decreaseMonth: decreaseMonthMock,
         increaseMonth: increaseMonthMock,
         prevMonthButtonDisabled: false,
-        nextMonthButtonDisabled: false
+        nextMonthButtonDisabled: false,
       });
       // 3) Devuelve el HTML mínimo
       return (
@@ -58,7 +50,7 @@ jest.mock('react-datepicker', () => {
           />
         </div>
       );
-    }
+    },
   };
 });
 
@@ -67,10 +59,10 @@ import {
   changeYearMock,
   changeMonthMock,
   decreaseMonthMock,
-  increaseMonthMock
+  increaseMonthMock,
 } from 'react-datepicker';
 
-import CustomDatePicker from './CustomDatePicker';
+import CustomDatePicker from '../../src/components/CustomDatePicker';
 
 describe('CustomDatePicker', () => {
   const currentYear = new Date().getFullYear();
@@ -120,7 +112,7 @@ describe('CustomDatePicker', () => {
         selected={new Date(2020, 1, 10)}
         onChange={() => {}}
         dateFormat="yyyy-MM-dd"
-      />
+      />,
     );
     expect(screen.getByPlaceholderText(placeholder)).toBeInTheDocument();
 
@@ -145,13 +137,7 @@ describe('CustomDatePicker', () => {
 
   it('4) dateFormat="yyyy" placeholder y header estático sin <select>', () => {
     const placeholder = 'Seleccione un año';
-    render(
-      <CustomDatePicker
-        selected={null}
-        onChange={() => {}}
-        dateFormat="yyyy"
-      />
-    );
+    render(<CustomDatePicker selected={null} onChange={() => {}} dateFormat="yyyy" />);
     expect(screen.getByPlaceholderText(placeholder)).toBeInTheDocument();
 
     expect(screen.getByText('1990')).toBeInTheDocument();

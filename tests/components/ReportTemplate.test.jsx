@@ -1,13 +1,13 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import ReportTemplate from './ReportTemplate';
+import ReportTemplate from '../../src/components/ReportTemplate';
 
 // ----- 1) Mock del hook useReport -----
-import useReport from '../hooks/useReport';
-jest.mock('../hooks/useReport');
+import useReport from '../../src/hooks/useReport';
+jest.mock('../../src/hooks/useReport');
 
 // ----- 2) Mock de CustomDatePicker -----
-jest.mock('./CustomDatePicker', () => {
+jest.mock('../../src/components/CustomDatePicker', () => {
   // recibe props: { selected, onChange, dateFormat }
   return ({ onChange, dateFormat }) => (
     <button
@@ -20,14 +20,14 @@ jest.mock('./CustomDatePicker', () => {
 });
 
 describe('ReportTemplate', () => {
-  const mockSetYear          = jest.fn();
-  const mockSetMainCode      = jest.fn();
+  const mockSetYear = jest.fn();
+  const mockSetMainCode = jest.fn();
   const mockSetAccountingAcc = jest.fn();
-  const mockSetStartAcq      = jest.fn();
-  const mockSetEndAcq        = jest.fn();
-  const mockSetStartUse      = jest.fn();
-  const mockSetEndUse        = jest.fn();
-  const mockGenerate         = jest.fn();
+  const mockSetStartAcq = jest.fn();
+  const mockSetEndAcq = jest.fn();
+  const mockSetStartUse = jest.fn();
+  const mockSetEndUse = jest.fn();
+  const mockGenerate = jest.fn();
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -62,7 +62,7 @@ describe('ReportTemplate', () => {
     render(<ReportTemplate title="T" option="opt" withYear={false} />);
 
     // Inputs de texto…
-    const [ mainInput, accInput ] = screen.getAllByRole('textbox');
+    const [mainInput, accInput] = screen.getAllByRole('textbox');
     fireEvent.change(mainInput, { target: { value: 'nuevoMC' } });
     expect(mockSetMainCode).toHaveBeenCalledWith('nuevoMC');
 
@@ -113,7 +113,7 @@ describe('ReportTemplate', () => {
       setStartUse: mockSetStartUse,
       endUse: null,
       setEndUse: mockSetEndUse,
-      disabled: false,      // aquí
+      disabled: false, // aquí
       generate: mockGenerate,
     });
 
@@ -133,7 +133,7 @@ describe('ReportTemplate', () => {
     expect(screen.queryByTestId('datepicker-yyyy')).toBeNull();
     // Todo lo demás debe seguir igual al caso explicit false:
     // – los inputs de código y cuenta
-    const [ mainInput, accInput ] = screen.getAllByRole('textbox');
+    const [mainInput, accInput] = screen.getAllByRole('textbox');
     expect(mainInput).toHaveValue('MC0');
     expect(accInput).toHaveValue('AC0');
     // – el progressbar

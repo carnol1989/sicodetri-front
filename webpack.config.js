@@ -1,15 +1,16 @@
 const path = require('path');
 
 module.exports = {
-    entry: './src/index.js',  // Punto de entrada de tu aplicación
+    entry: './src/index.js', // Punto de entrada
     output: {
         path: path.resolve(__dirname, 'dist'),
-        filename: 'bundle.js',   // Archivo de salida
+        filename: 'bundle.js', // Archivo compilado
+        clean: true, // Limpia /dist en cada build
     },
     module: {
         rules: [
             {
-                test: /\.mjs$/,  // Configuración para archivos .mjs
+                test: /\.m?js$/, // Soporta .js y .mjs
                 exclude: /node_modules/,
                 use: {
                     loader: 'babel-loader',
@@ -19,15 +20,19 @@ module.exports = {
                     },
                 },
             },
-            // Puedes agregar más reglas aquí para otros tipos de archivos
         ],
     },
     resolve: {
         extensions: ['.js', '.jsx', '.mjs'],
     },
     devServer: {
-        contentBase: path.join(__dirname, 'public'),
+        static: {
+            directory: path.join(__dirname, 'public'), // Reemplaza contentBase
+        },
         compress: true,
         port: 3000,
+        open: true, // Abre el navegador automáticamente
+        hot: true,  // HMR (Hot Module Replacement)
     },
+    mode: 'development',
 };

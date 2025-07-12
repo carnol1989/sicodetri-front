@@ -1,27 +1,21 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import NavBar from './NavBar';
+import NavBar from '../../src/components/NavBar';
 
 describe('NavBar component', () => {
   beforeEach(() => {
     render(
       <MemoryRouter>
         <NavBar />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
   });
 
   it('renders a <nav> with the correct classes', () => {
     const nav = screen.getByRole('navigation');
     expect(nav).toBeInTheDocument();
-    expect(nav).toHaveClass(
-      'navbar',
-      'navbar-expand-md',
-      'navbar-dark',
-      'fixed-top',
-      'bg-dark'
-    );
+    expect(nav).toHaveClass('navbar', 'navbar-expand-md', 'navbar-dark', 'fixed-top', 'bg-dark');
   });
 
   it('renders the brand link pointing to "/" with text SICODETRI', () => {
@@ -75,18 +69,15 @@ describe('NavBar component', () => {
     expect(repToggle).toHaveClass('nav-link', 'dropdown-toggle');
 
     const taxBook = screen.getByRole('link', {
-      name: 'Libro Tributario de Activo Fijo'
+      name: 'Libro Tributario de Activo Fijo',
     });
     expect(taxBook).toHaveClass('dropdown-item');
     expect(taxBook).toHaveAttribute('href', '/report-tax-book');
 
     const detail = screen.getByRole('link', {
-      name: 'Detalle Depreciación Financiera y Tributaria'
+      name: 'Detalle Depreciación Financiera y Tributaria',
     });
     expect(detail).toHaveClass('dropdown-item');
-    expect(detail).toHaveAttribute(
-      'href',
-      '/report-detail-depreciation'
-    );
+    expect(detail).toHaveAttribute('href', '/report-detail-depreciation');
   });
 });
