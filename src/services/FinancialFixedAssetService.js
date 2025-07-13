@@ -1,12 +1,13 @@
-import http from "../http-commom";
+// src/services/FinancialFixedAssetService.js
+import http from '../http-common';
 
 const uploadService = (file, period, onUploadProgress) => {
   let formData = new FormData();
-  formData.append("file", file);
+  formData.append('file', file);
   const url = `${process.env.REACT_APP_URL_API_FINANCIAL_FIXED_ASSETS}/upload?period=${encodeURIComponent(period)}`;
   return http.post(url, formData, {
     headers: {
-      "Content-Type": "multipart/form-data",
+      'Content-Type': 'multipart/form-data',
     },
     onUploadProgress,
   });
@@ -16,61 +17,82 @@ const saveService = (period, onUploadProgress) => {
   const url = `${process.env.REACT_APP_URL_API_FINANCIAL_FIXED_ASSETS}?period=${encodeURIComponent(period)}`;
   return http.post(url, {
     headers: {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
     },
     onUploadProgress,
   });
-}
+};
 
 const generateTemporaryDeductionsService = (period, account, onUploadProgress) => {
   const url = `${process.env.REACT_APP_URL_API_FINANCIAL_FIXED_ASSETS}/projection?type=TEMPORARY_DEDUCTIONS&period=${encodeURIComponent(period)}&account=${encodeURIComponent(account)}`;
-  return http.post(url, {}, {
-    headers: {
-      "Content-Type": "application/json",
+  return http.post(
+    url,
+    {},
+    {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      onUploadProgress,
     },
-    onUploadProgress,
-  });
-}
+  );
+};
 
 const generateTemporaryAdditionsService = (period, account, onUploadProgress) => {
   const url = `${process.env.REACT_APP_URL_API_FINANCIAL_FIXED_ASSETS}/projection?type=TEMPORARY_ADDITIONS&period=${encodeURIComponent(period)}&account=${encodeURIComponent(account)}`;
-  return http.post(url, {}, {
-    headers: {
-      "Content-Type": "application/json",
+  return http.post(
+    url,
+    {},
+    {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      onUploadProgress,
     },
-    onUploadProgress,
-  });
-}
+  );
+};
 
 const generatePermanentAdditionsService = (period, account, onUploadProgress) => {
   const url = `${process.env.REACT_APP_URL_API_FINANCIAL_FIXED_ASSETS}/projection?type=PERMANENT_ADDITIONS&period=${encodeURIComponent(period)}&account=${encodeURIComponent(account)}`;
-  return http.post(url, {}, {
-    headers: {
-      "Content-Type": "application/json",
+  return http.post(
+    url,
+    {},
+    {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      onUploadProgress,
     },
-    onUploadProgress,
-  });
-}
+  );
+};
 
-const generateReportsService = async (option, year, mainCode, accountingAccount, startAcquisitionDate, endAcquisitionDate,
-                                            startDateUse, endDateUse, onDownloadProgress) => {
+const generateReportsService = async (
+  option,
+  year,
+  mainCode,
+  accountingAccount,
+  startAcquisitionDate,
+  endAcquisitionDate,
+  startDateUse,
+  endDateUse,
+  onDownloadProgress,
+) => {
   // Define los parámetros
   const params = {
     option: option,
-    fileType: "xlsx",
+    fileType: 'xlsx',
     year: year,
     mainCode: mainCode,
     accountingAccount: accountingAccount,
     startAcquisitionDate: startAcquisitionDate,
     endAcquisitionDate: endAcquisitionDate,
     startDateUse: startDateUse,
-    endDateUse: endDateUse
+    endDateUse: endDateUse,
   };
 
   // Codifica cada valor de parámetro
   const encodedParams = Object.keys(params)
-      .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`)
-      .join('&');
+    .map((key) => `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`)
+    .join('&');
 
   // Construye la URL
   const url = `${process.env.REACT_APP_URL_API_FINANCIAL_FIXED_ASSETS}/report?${encodedParams}`;
@@ -83,7 +105,7 @@ const generateReportsService = async (option, year, mainCode, accountingAccount,
         if (onDownloadProgress) {
           onDownloadProgress(progressEvent);
         }
-      }
+      },
     });
     // Accede a los headers
     const headers = response.headers;
@@ -101,16 +123,15 @@ const generateReportsService = async (option, year, mainCode, accountingAccount,
     let fileName = 'archivo.xlsx';
     if (contentDisposition) {
       const fileNameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
-      if (fileNameMatch !== null && fileNameMatch !== undefined)
-        fileName = fileNameMatch[1];
+      if (fileNameMatch !== null && fileNameMatch !== undefined) fileName = fileNameMatch[1];
     }
 
     a.href = fileURL;
-    a.download = fileName
+    a.download = fileName;
     a.click();
   } catch (error) {
-    console.error("Error descargando el archivo:", error);
-    throw new Error("Error al descargar el reporte");
+    console.error('Error descargando el archivo:', error);
+    throw new Error('Error al descargar el reporte');
   }
 };
 
@@ -120,7 +141,7 @@ const FinancialFixedAssetService = {
   generateTemporaryDeductionsService,
   generateTemporaryAdditionsService,
   generatePermanentAdditionsService,
-  generateReportsService
+  generateReportsService,
 };
 
 export default FinancialFixedAssetService;

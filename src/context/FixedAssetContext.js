@@ -1,3 +1,4 @@
-import React from "react";
+// src/context/FixedAssetContext.js
+import React from 'react';
 
 export const FixedAssetContext = React.createContext();
