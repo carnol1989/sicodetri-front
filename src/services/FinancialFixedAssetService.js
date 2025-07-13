@@ -1,4 +1,5 @@
-import http from '../http-commom';
+// src/services/FinancialFixedAssetService.js
+import http from '../http-common';
 
 const uploadService = (file, period, onUploadProgress) => {
   let formData = new FormData();

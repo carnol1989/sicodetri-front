@@ -1,3 +1,4 @@
+// src/hooks/useReport.js
 import { useState } from 'react';
 import { format } from 'date-fns';
 import FinancialFixedAssetService from '../services/FinancialFixedAssetService';

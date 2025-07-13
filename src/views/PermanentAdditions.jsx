@@ -1,3 +1,4 @@
+// src/views/PermanentAdditions.jsx
 import React from 'react';
 import ProjectionGenerator from '../components/ProjectionGenerator';
 import FinancialFixedAssetService from '../services/FinancialFixedAssetService';

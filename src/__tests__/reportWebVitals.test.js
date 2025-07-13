@@ -1,4 +1,5 @@
-import reportWebVitals from './reportWebVitals';
+// src/__tests__/reportWebVitals.test.js
+import reportWebVitals from '../reportWebVitals';
 import * as webVitals from 'web-vitals';
 
 // Mockeamos todo el módulo 'web-vitals'

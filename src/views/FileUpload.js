@@ -1,3 +1,4 @@
+// src/views/FileUpload.js
 import React, { useState } from 'react';
 import FinancialFixedAssetService from '../services/FinancialFixedAssetService';
 import CustomDatePicker from '../components/CustomDatePicker';
@@ -26,6 +27,7 @@ const FileUpload = () => {
     if (!period) {
       setCode('');
       setMessage('Por favor seleccione un periodo.');
+      setShowAlert(true);
       return;
     }
 
@@ -57,6 +59,7 @@ const FileUpload = () => {
     if (!period) {
       setCode('');
       setMessage('Por favor seleccione un periodo.');
+      setShowAlert(true);
       return;
     }
 
@@ -125,16 +128,12 @@ const FileUpload = () => {
 
         <div className="row mb-3">
           <div className="d-flex gap-2">
-            <button
-              className="btn btn-primary"
-              disabled={!selectedFiles || !period}
-              onClick={uploadFile}
-            >
+            <button className="btn btn-primary" disabled={!selectedFiles} onClick={uploadFile}>
               Subir Archivo
             </button>
             <button
               className="btn btn-primary"
-              disabled={!selectedFiles || !period || activeSave}
+              disabled={!selectedFiles || (period && activeSave)}
               onClick={saveDataFile}
             >
               Guardar Información

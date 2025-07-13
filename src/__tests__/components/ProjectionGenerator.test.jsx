@@ -1,8 +1,9 @@
+// src/__tests__/components/ProjectionGenerator.test.jsx
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import ProjectionGenerator from '../../src/components/ProjectionGenerator';
+import ProjectionGenerator from '../../components/ProjectionGenerator';
 
-jest.mock('../../src/components/CustomDatePicker', () => {
+jest.mock('../../components/CustomDatePicker', () => {
   return ({ onChange }) => (
     <button data-testid="datepicker" onClick={() => onChange(new Date('2025-07-11'))}>
       Select Period

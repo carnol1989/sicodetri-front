@@ -1,6 +1,7 @@
+// src/__tests__/components/Header.test.jsx
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import Header from '../../src/components/Header';
+import Header from '../../components/Header';
 
 describe('Header component', () => {
   it('renders a <header> landmark with role banner', () => {

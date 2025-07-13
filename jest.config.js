@@ -18,10 +18,11 @@ module.exports = {
         "node_modules/(?!(axios)/)"
     ],
 
-    // Carpetas donde buscar tests
+    // Carpetas donde buscar __tests__
     testMatch: [
         '<rootDir>/src/**/*.test.(js|jsx|ts|tsx)',
-        '<rootDir>/src/**/__tests__/*.(js|jsx|ts|tsx)'
+        '<rootDir>/src/**/__tests__/*.(js|jsx|ts|tsx)',
+        '<rootDir>/src/**/__tests__/**/*.(js|jsx|ts|tsx)'
     ],
 
     // Archivos de configuración que se cargan antes de cada test

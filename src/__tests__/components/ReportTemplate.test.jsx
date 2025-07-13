@@ -1,13 +1,14 @@
+// src/__tests__/components/ReportTemplate.test.jsx
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import ReportTemplate from '../../src/components/ReportTemplate';
+import ReportTemplate from '../../components/ReportTemplate';
 
 // ----- 1) Mock del hook useReport -----
-import useReport from '../../src/hooks/useReport';
-jest.mock('../../src/hooks/useReport');
+import useReport from '../../hooks/useReport';
+jest.mock('../../hooks/useReport');
 
 // ----- 2) Mock de CustomDatePicker -----
-jest.mock('../../src/components/CustomDatePicker', () => {
+jest.mock('../../components/CustomDatePicker', () => {
   // recibe props: { selected, onChange, dateFormat }
   return ({ onChange, dateFormat }) => (
     <button

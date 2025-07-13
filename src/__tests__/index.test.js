@@ -1,3 +1,4 @@
+// src/__tests__/index.test.js
 /**
  * @jest-environment jsdom
  */
@@ -6,14 +7,14 @@ import React from 'react';
 //
 // 1) Mocks de CSS y Bootstrap (para que no fallen los imports)
 //
-jest.mock('./index.css', () => ({}));
+jest.mock('../index.css', () => ({}));
 jest.mock('bootstrap/dist/css/bootstrap.min.css', () => ({}));
 jest.mock('bootstrap/dist/js/bootstrap.bundle.min', () => ({}));
 
 //
 // 2) Mock de App para verificar que realmente renderizamos ese componente
 //
-jest.mock('./App', () => {
+jest.mock('../App', () => {
   const React = require('react');
   return {
     __esModule: true,
@@ -54,7 +55,7 @@ describe('index.js', () => {
 
   it('debe crear el root y renderizar <App /> en él', () => {
     // 4) Requerimos index.js _después_ de haber hecho el doMock
-    require('./index.js');
+    require('../index');
 
     // 5) Ahora traemos la misma instancia mockeada
     const { createRoot, renderMock: rm } = require('react-dom/client');
@@ -67,7 +68,7 @@ describe('index.js', () => {
     // 7) Y comprobamos que lo que se pasó a render() sea nuestro <App />
     const renderedElement = rm.mock.calls[0][0];
     // Recuperamos el componente App que también está mockeado
-    const App = require('./App').default;
+    const App = require('../App').default;
     expect(renderedElement.type).toBe(App);
   });
 });

@@ -1,7 +1,8 @@
+// src/__tests__/components/NavBar.test.jsx
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import NavBar from '../../src/components/NavBar';
+import NavBar from '../../components/NavBar';
 
 describe('NavBar component', () => {
   beforeEach(() => {

@@ -1,3 +1,4 @@
+// src/App.js
 import React from 'react';
 import './styles/styles.css';
 import './styles/sticky-footer-navbar.css';

@@ -1,3 +1,4 @@
+// src/views/ReportDetailDepreciation.jsx
 import React from 'react';
 import ReportTemplate from '../components/ReportTemplate';
 
