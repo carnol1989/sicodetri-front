@@ -1,10 +1,10 @@
-// src/__tests__/views/TemporaryDeductions.test.jsx
+// src/__tests__/unit/views/TemporaryDeductions.test.jsx
 import { render } from '@testing-library/react';
-import TemporaryDeductions from '../../views/TemporaryDeductions';
-import ProjectionGenerator from '../../components/ProjectionGenerator';
-import FinancialFixedAssetService from '../../services/FinancialFixedAssetService';
+import TemporaryDeductions from '../../../views/TemporaryDeductions';
+import ProjectionGenerator from '../../../components/ProjectionGenerator';
+import FinancialFixedAssetService from '../../../services/FinancialFixedAssetService';
 
-jest.mock('../../components/ProjectionGenerator', () => jest.fn(() => null));
+jest.mock('../../../components/ProjectionGenerator', () => jest.fn(() => null));
 
 describe('TemporaryDeductions component', () => {
   afterEach(() => {

@@ -1,8 +1,8 @@
-// src/__tests__/components/NavBar.test.jsx
+// src/__tests__/unit/components/NavBar.test.jsx
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import NavBar from '../../components/NavBar';
+import NavBar from '../../../components/NavBar';
 
 describe('NavBar component', () => {
   beforeEach(() => {
@@ -43,9 +43,9 @@ describe('NavBar component', () => {
     expect(uploadLink).toHaveAttribute('href', '/upload');
   });
 
-  it('renders the "Generar Proyeccion" dropdown and its items', () => {
-    // Dropdown toggle
-    const genToggle = screen.getByRole('button', { name: 'Generar Proyeccion' });
+  it('renders the "Generar Proyección" dropdown and its items', () => {
+    // Dropdown toggle (ahora con tilde)
+    const genToggle = screen.getByRole('button', { name: 'Generar Proyección' });
     expect(genToggle).toBeInTheDocument();
     expect(genToggle).toHaveClass('nav-link', 'dropdown-toggle');
     expect(genToggle).toHaveAttribute('id', 'navbarDropdown');
@@ -69,15 +69,11 @@ describe('NavBar component', () => {
     expect(repToggle).toBeInTheDocument();
     expect(repToggle).toHaveClass('nav-link', 'dropdown-toggle');
 
-    const taxBook = screen.getByRole('link', {
-      name: 'Libro Tributario de Activo Fijo',
-    });
+    const taxBook = screen.getByRole('link', { name: 'Libro Tributario de Activo Fijo' });
     expect(taxBook).toHaveClass('dropdown-item');
     expect(taxBook).toHaveAttribute('href', '/report-tax-book');
 
-    const detail = screen.getByRole('link', {
-      name: 'Detalle Depreciación Financiera y Tributaria',
-    });
+    const detail = screen.getByRole('link', { name: 'Detalle Depreciación Financiera y Tributaria' });
     expect(detail).toHaveClass('dropdown-item');
     expect(detail).toHaveAttribute('href', '/report-detail-depreciation');
   });

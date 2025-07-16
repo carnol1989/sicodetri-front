@@ -1,12 +1,12 @@
-// src/__tests__/views/PermanentAdditions.test.jsx
+// src/__tests__/unit/views/PermanentAdditions.test.jsx
 import React from 'react';
 import { render } from '@testing-library/react';
-import PermanentAdditions from '../../views/PermanentAdditions';
-import ProjectionGenerator from '../../components/ProjectionGenerator';
-import FinancialFixedAssetService from '../../services/FinancialFixedAssetService';
+import PermanentAdditions from '../../../views/PermanentAdditions';
+import ProjectionGenerator from '../../../components/ProjectionGenerator';
+import FinancialFixedAssetService from '../../../services/FinancialFixedAssetService';
 
 // Mockeamos ProjectionGenerator para poder inspeccionar sus props
-jest.mock('../../components/ProjectionGenerator', () => jest.fn(() => null));
+jest.mock('../../../components/ProjectionGenerator', () => jest.fn(() => null));
 
 describe('PermanentAdditions component', () => {
   afterEach(() => {

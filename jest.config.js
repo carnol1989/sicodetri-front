@@ -1,4 +1,8 @@
 /** @type {import('ts-jest').JestConfigWithTsJest} */
+const publicPath = process.env.JEST_HTML_REPORTERS_PUBLIC_PATH || 'coverage';
+const htmlFilename = process.env.JEST_HTML_REPORTERS_FILENAME || 'report.html';
+const coverageDir = process.env.COVERAGE_DIRECTORY || 'coverage';
+
 module.exports = {
     preset: 'ts-jest',
     testEnvironment: 'jsdom',
@@ -18,11 +22,15 @@ module.exports = {
         "node_modules/(?!(axios)/)"
     ],
 
+    // --- MOCKEAR CSS y demás estilos ---
+    moduleNameMapper: {
+        '\\.(css|less|sass|scss)$': 'identity-obj-proxy'
+    },
+
     // Carpetas donde buscar __tests__
     testMatch: [
-        '<rootDir>/src/**/*.test.(js|jsx|ts|tsx)',
-        '<rootDir>/src/**/__tests__/*.(js|jsx|ts|tsx)',
-        '<rootDir>/src/**/__tests__/**/*.(js|jsx|ts|tsx)'
+        '<rootDir>/src/**/__tests__/unit/**/*.test.(js|jsx|ts|tsx)',
+        '<rootDir>/src/**/__tests__/integration/**/*.integration.test.(js|jsx|ts|tsx)'
     ],
 
     // Archivos de configuración que se cargan antes de cada test
@@ -30,7 +38,8 @@ module.exports = {
 
     // Cobertura
     collectCoverage: true,
-    coverageDirectory: 'coverage',
+    coverageDirectory: coverageDir,
+    coverageReporters: ['html','lcov','text-summary'],
     coverageThreshold: {
         global: {
             branches: 80,
@@ -39,6 +48,17 @@ module.exports = {
             statements: 80
         }
     },
+
+    reporters: [
+        'default',
+        ['jest-html-reporters', {
+            publicPath,
+            filename: htmlFilename,
+            expand: true,
+            pageTitle: htmlFilename.replace('.html',''),
+            hideIcon: true
+        }]
+    ]
 
     // Si decides usar alias
     // moduleNameMapper: { '^@/(.*)$': '<rootDir>/src/$1' },

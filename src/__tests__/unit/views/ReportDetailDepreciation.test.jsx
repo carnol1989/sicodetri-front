@@ -1,4 +1,4 @@
-// src/__tests__/views/ReportDetailDepreciation.test.jsx
+// src/__tests__/unit/views/ReportDetailDepreciation.test.jsx
 import React from 'react';
 import { render, screen, cleanup } from '@testing-library/react';
 import '@testing-library/jest-dom';
@@ -12,12 +12,12 @@ describe('ReportDetailDepreciation', () => {
 
   it('debería llamar a ReportTemplate con las props correctas', () => {
     const mockReportTemplate = jest.fn();
-    jest.doMock('../../components/ReportTemplate', () => ({
+    jest.doMock('../../../components/ReportTemplate', () => ({
       __esModule: true,
       default: mockReportTemplate,
     }));
 
-    const ReportDetailDepreciation = require('../../views/ReportDetailDepreciation')
+    const ReportDetailDepreciation = require('../../../views/ReportDetailDepreciation')
       .default;
 
     render(<ReportDetailDepreciation />);
@@ -33,7 +33,7 @@ describe('ReportDetailDepreciation', () => {
   });
 
   it('debería renderizar el componente ReportTemplate en el DOM', () => {
-    jest.doMock('../../components/ReportTemplate', () => ({
+    jest.doMock('../../../components/ReportTemplate', () => ({
       __esModule: true,
       default: ({ title, option, withYear }) => (
         <div data-testid="report-template">
@@ -42,7 +42,7 @@ describe('ReportDetailDepreciation', () => {
       ),
     }));
 
-    const ReportDetailDepreciation = require('../../views/ReportDetailDepreciation')
+    const ReportDetailDepreciation = require('../../../views/ReportDetailDepreciation')
       .default;
 
     render(<ReportDetailDepreciation />);

@@ -1,10 +1,10 @@
-// src/__tests__/views/Home.test.js
+// src/__tests__/unit/views/Home.test.js
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import Home from '../../views/Home';
+import Home from '../../../views/Home';
 
 // Mockeamos Header para aislar el test de Home
-jest.mock('../../components/Header', () => () => <div data-testid="header-component" />);
+jest.mock('../../../components/Header', () => () => <div data-testid="header-component" />);
 
 describe('Home component', () => {
   it('debe renderizar un <main> con la clase "flex-shrink-0"', () => {

@@ -1,10 +1,10 @@
-// src/__tests__/views/TemporaryAdditions.test.jsx
+// src/__tests__/unit/views/TemporaryAdditions.test.jsx
 import { render } from '@testing-library/react';
-import TemporaryAdditions from '../../views/TemporaryAdditions';
-import ProjectionGenerator from '../../components/ProjectionGenerator';
-import FinancialFixedAssetService from '../../services/FinancialFixedAssetService';
+import TemporaryAdditions from '../../../views/TemporaryAdditions';
+import ProjectionGenerator from '../../../components/ProjectionGenerator';
+import FinancialFixedAssetService from '../../../services/FinancialFixedAssetService';
 
-jest.mock('../../components/ProjectionGenerator', () => jest.fn(() => null));
+jest.mock('../../../components/ProjectionGenerator', () => jest.fn(() => null));
 
 describe('TemporaryAdditions component', () => {
   afterEach(() => {

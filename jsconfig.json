@@ -1,0 +1,41 @@
+{
+  "compilerOptions": {
+    "target": "ES6",
+
+    "module": "ESNext",
+
+    "lib": ["DOM", "ESNext"],
+
+    "jsx": "react-jsx",
+
+    "baseUrl": "src",
+
+    "paths": {
+      "@components/*": ["components/*"],
+      "@views/*": ["views/*"],
+      "@services/*": ["services/*"],
+      "@utils/*": ["utils/*"],
+      "@tests/*": ["__tests__/*"]
+    },
+
+    "moduleResolution": "node",
+
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+
+    "resolveJsonModule": true,
+
+    "isolatedModules": true,
+
+    "noEmit": true,
+
+    "allowJs": true,
+    "checkJs": false,
+
+    "skipLibCheck": true,
+
+    "types": ["node", "jest"]
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "build", "dist"]
+}
