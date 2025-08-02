@@ -1,11 +1,11 @@
-// src/__tests__/views/FileUpload.test.js
+// src/__tests__/unit/views/FileUpload.test.js
 import React from 'react';
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
-import FileUpload from '../../views/FileUpload';
-import FinancialFixedAssetService from '../../services/FinancialFixedAssetService';
+import FileUpload from '../../../views/FileUpload';
+import FinancialFixedAssetService from '../../../services/FinancialFixedAssetService';
 
 // Mock de CustomDatePicker como un input de tipo date
-jest.mock('../../components/CustomDatePicker', () => (props) => (
+jest.mock('../../../components/CustomDatePicker', () => (props) => (
   <input
     data-testid="datepicker"
     type="date"
@@ -15,7 +15,7 @@ jest.mock('../../components/CustomDatePicker', () => (props) => (
 ));
 
 // Mock de FinancialFixedAssetService
-jest.mock('../../services/FinancialFixedAssetService', () => ({
+jest.mock('../../../services/FinancialFixedAssetService', () => ({
   uploadService: jest.fn(),
   saveService: jest.fn(),
 }));
@@ -30,8 +30,9 @@ describe('FileUpload Component', () => {
     const utils = render(<FileUpload />);
     const fileInput = utils.container.querySelector('input[type="file"]');
     const dateInput = screen.getByTestId('datepicker');
-    const uploadBtn = screen.getByText('Subir Archivo');
-    const saveBtn = screen.getByText('Guardar Información');
+    // <--- Aquí usamos getByRole en vez de getByText
+    const uploadBtn = screen.getByRole('button', { name: 'Subir Archivo' });
+    const saveBtn   = screen.getByRole('button', { name: 'Guardar Información' });
     return { ...utils, fileInput, dateInput, uploadBtn, saveBtn };
   }
 

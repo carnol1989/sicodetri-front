@@ -1,17 +1,17 @@
-// src/__tests__/router/GlobalRouter.test.jsx
+// src/__tests__/unit/router/GlobalRouter.test.jsx
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import GlobalRouter from '../../router/GlobalRouter';
+import GlobalRouter from '../../../router/GlobalRouter';
 
 // Mocks de todos los componentes importados en GlobalRouter
-jest.mock('../../views/Home', () => () => <div>Home Component</div>);
-jest.mock('../../components/NavBar', () => () => <div>NavBar Component</div>);
-jest.mock('../../views/FileUpload', () => () => <div>FileUpload Component</div>);
-jest.mock('../../views/TemporaryDeductions', () => () => <div>TemporaryDeductions Component</div>);
-jest.mock('../../views/TemporaryAdditions', () => () => <div>TemporaryAdditions Component</div>);
-jest.mock('../../views/PermanentAdditions', () => () => <div>PermanentAdditions Component</div>);
-jest.mock('../../views/ReportTaxBook', () => () => <div>ReportTaxBook Component</div>);
-jest.mock('../../views/ReportDetailDepreciation', () => () => <div>ReportDetailDepreciation Component</div>);
+jest.mock('../../../views/Home', () => () => <div>Home Component</div>);
+jest.mock('../../../components/NavBar', () => () => <div>NavBar Component</div>);
+jest.mock('../../../views/FileUpload', () => () => <div>FileUpload Component</div>);
+jest.mock('../../../views/TemporaryDeductions', () => () => <div>TemporaryDeductions Component</div>);
+jest.mock('../../../views/TemporaryAdditions', () => () => <div>TemporaryAdditions Component</div>);
+jest.mock('../../../views/PermanentAdditions', () => () => <div>PermanentAdditions Component</div>);
+jest.mock('../../../views/ReportTaxBook', () => () => <div>ReportTaxBook Component</div>);
+jest.mock('../../../views/ReportDetailDepreciation', () => () => <div>ReportDetailDepreciation Component</div>);
 
 // Helper para renderizar GlobalRouter en una ruta concreta
 const renderWithRoute = (path) => {

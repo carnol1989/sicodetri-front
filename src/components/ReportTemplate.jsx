@@ -4,16 +4,19 @@ import PropTypes from 'prop-types';
 import CustomDatePicker from './CustomDatePicker';
 import useReport from '../hooks/useReport';
 
-const LabeledField = ({ label, children }) => (
+const LabeledField = ({ label, children, htmlFor }) => (
   <div className="row mb-3">
     <div className="col-md-4 text-end">
-      <label className="form-label">{label}</label>
+      <label htmlFor={htmlFor} className="form-label">
+        {label}
+      </label>
     </div>
     <div className="col-md-8">{children}</div>
   </div>
 );
 LabeledField.propTypes = {
   label: PropTypes.string.isRequired,
+  htmlFor: PropTypes.string,
   children: PropTypes.node.isRequired,
 };
 
@@ -51,8 +54,9 @@ export default function ReportTemplate({ title, option, withYear = false }) {
           </LabeledField>
         )}
 
-        <LabeledField label="Código Activo Fijo Principal:">
+        <LabeledField label="Código Activo Fijo Principal:" htmlFor="mainCode">
           <input
+            id="mainCode"
             type="text"
             className="form-control-sm"
             value={mainCode}
@@ -60,8 +64,9 @@ export default function ReportTemplate({ title, option, withYear = false }) {
           />
         </LabeledField>
 
-        <LabeledField label="Cuenta Contable del Activo Fijo:">
+        <LabeledField label="Cuenta Contable del Activo Fijo:" htmlFor="accountingAccount">
           <input
+            id="accountingAccount"
             type="text"
             className="form-control-sm"
             value={accountingAccount}

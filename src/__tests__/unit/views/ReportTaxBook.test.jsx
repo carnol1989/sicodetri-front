@@ -1,4 +1,4 @@
-// src/__tests__/views/ReportTaxBook.test.jsx
+// src/__tests__/unit/views/ReportTaxBook.test.jsx
 import React from 'react';
 import { render, screen, cleanup } from '@testing-library/react';
 import '@testing-library/jest-dom';
@@ -11,12 +11,12 @@ describe('ReportTaxBook', () => {
 
   it('debe renderizar ReportTemplate con los props correctos', () => {
     const mockReportTemplate = jest.fn();
-    jest.doMock('../../components/ReportTemplate', () => ({
+    jest.doMock('../../../components/ReportTemplate', () => ({
       __esModule: true,
       default: mockReportTemplate,
     }));
 
-    const ReportTaxBook = require('../../views/ReportTaxBook')
+    const ReportTaxBook = require('../../../views/ReportTaxBook')
       .default;
 
     render(<ReportTaxBook />);
@@ -32,7 +32,7 @@ describe('ReportTaxBook', () => {
   });
 
   it('debe mostrar el componente mock de ReportTemplate en el DOM', () => {
-    jest.doMock('../../components/ReportTemplate', () => ({
+    jest.doMock('../../../components/ReportTemplate', () => ({
       __esModule: true,
       default: ({ title, option, withYear }) => (
         <div data-testid="report-template">
@@ -41,7 +41,7 @@ describe('ReportTaxBook', () => {
       )
     }));
 
-    const ReportTaxBook = require('../../views/ReportTaxBook')
+    const ReportTaxBook = require('../../../views/ReportTaxBook')
       .default;
 
     render(<ReportTaxBook />);

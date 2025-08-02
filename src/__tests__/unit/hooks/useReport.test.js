@@ -1,12 +1,12 @@
-// src/__tests__/hooks/useReport.test.js
+// src/__tests__/unit/hooks/useReport.test.js
 
 // 1) Forzamos la zona horaria a UTC para eliminar offsets de fecha
 process.env.TZ = 'UTC';
 
 import React from 'react';
 import { render, act } from '@testing-library/react';
-import useReport from '../../hooks/useReport';
-import FinancialFixedAssetService from '../../services/FinancialFixedAssetService';
+import useReport from '../../../hooks/useReport';
+import FinancialFixedAssetService from '../../../services/FinancialFixedAssetService';
 
 function HookTest({ option, withYear, onRender }) {
   const api = useReport(option, withYear);

@@ -104,7 +104,9 @@ const FileUpload = () => {
 
         <div className="row">
           <div className="col">
-            <label htmlFor="formFile" className="form-label"></label>
+            <label htmlFor="formFile" className="form-label">
+              Subir Archivo
+            </label>
             <input id="formFile" className="form-control" type="file" onChange={selectFile} />
           </div>
         </div>

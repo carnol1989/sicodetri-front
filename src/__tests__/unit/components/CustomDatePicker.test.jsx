@@ -1,4 +1,4 @@
-// src/__tests__/components/CustomDatePicker.test.jsx
+// src/__tests__/unit/components/CustomDatePicker.test.jsx
 import React from 'react';
 import { render, screen, createEvent, fireEvent, within } from '@testing-library/react';
 
@@ -62,7 +62,7 @@ import {
   increaseMonthMock,
 } from 'react-datepicker';
 
-import CustomDatePicker from '../../components/CustomDatePicker';
+import CustomDatePicker from '../../../components/CustomDatePicker';
 
 describe('CustomDatePicker', () => {
   const currentYear = new Date().getFullYear();

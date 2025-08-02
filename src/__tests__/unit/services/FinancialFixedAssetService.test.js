@@ -1,10 +1,10 @@
-// src/__tests__/services/FinancialFixedAssetService.test.js
+// src/__tests__/unit/services/FinancialFixedAssetService.test.js
 
 // 1) Fijamos la env var ANTES de cualquier import
 process.env.REACT_APP_URL_API_FINANCIAL_FIXED_ASSETS = '/financial-fixed-assets';
 
-import http from '../../http-common';
-import Service from '../../services/FinancialFixedAssetService';
+import http from '../../../http-common';
+import Service from '../../../services/FinancialFixedAssetService';
 
 describe('FinancialFixedAssetService', () => {
   afterEach(() => {

@@ -1,17 +1,17 @@
-// src/__tests__/App.test.js
+// src/__tests__/unit/App.test.js
 /**
  * @jest-environment jsdom
  */
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import App from '../App';
+import App from '../../App';
 
 // Evitamos errores al importar CSS
-jest.mock('../styles/styles.css', () => ({}));
-jest.mock('../styles/sticky-footer-navbar.css', () => ({}));
+jest.mock('../../styles/styles.css', () => ({}));
+jest.mock('../../styles/sticky-footer-navbar.css', () => ({}));
 
 // Solo mockeamos Footer; GlobalRouter se monta de verdad.
-jest.mock('../components/Footer', () => () => (
+jest.mock('../../components/Footer', () => () => (
   <div data-testid="mock-footer">Footer Mockeado</div>
 ));
 
