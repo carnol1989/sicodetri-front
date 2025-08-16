@@ -1,11 +1,6 @@
 // src/__tests__/integration/TemporaryAdditions.integration.test.jsx
 import React from 'react';
-import {
-  render,
-  screen,
-  waitFor,
-  cleanup
-} from '@testing-library/react';
+import { render, screen, waitFor, cleanup, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import path from 'path';
@@ -17,7 +12,7 @@ jest.mock('../../components/CustomDatePicker', () => ({ selected, onChange }) =>
     aria-label="select-period"
     type="month"
     value={selected ? selected.toISOString().slice(0, 7) : ''}
-    onChange={e => {
+    onChange={(e) => {
       const [y, m] = e.target.value.split('-');
       onChange(new Date(y, m - 1, 1));
     }}
@@ -37,21 +32,47 @@ jest.mock('../../services/FinancialFixedAssetService', () => ({
 import FinancialFixedAssetService from '../../services/FinancialFixedAssetService';
 
 // 3) Componentes reales
-import FileUpload from '../../views/FileUpload';
+import App from '../../App';
 import ProjectionGenerator from '../../components/ProjectionGenerator';
-import TemporaryAdditions from '../../views/TemporaryAdditions';
 
-describe('Flujo completo de Adiciones Temporales', () => {
-  beforeEach(() => jest.clearAllMocks());
+// 4) Mock de useAuth para pasar PrivateRoute y activar TokenBridge
+jest.mock('../../hooks/useAuth', () => ({
+  useAuth: jest.fn(),
+}));
+const { useAuth } = require('../../hooks/useAuth');
+
+// (Opcional) Polyfill si tu app decodifica tokens
+if (typeof global.atob !== 'function') {
+  global.atob = (input) => Buffer.from(input, 'base64').toString('binary');
+}
+
+describe('Flujo completo de Adiciones Temporales con autenticación (PrivateRoute)', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    sessionStorage.clear();
+
+    // Usuario autenticado: PrivateRoute deja pasar y TokenBridge persiste pkce_token
+    useAuth.mockReturnValue({
+      token: 'access-token-fake',
+      idToken: 'fake-idtoken',
+      idTokenData: { sub: 'user-123', email: 'user@example.com' },
+      isAuthenticated: true,
+      isPending: false,
+      login: jest.fn(),
+      logout: jest.fn(),
+      error: null,
+    });
+  });
+
   afterEach(cleanup);
 
-  test('Subir → Guardar → Generar Proyección → Adiciones Temporales', async () => {
-    // —— 1) Mockeos de respuesta —
+  test('Subir → Guardar → Generar Proyección → Adiciones Temporales (con rutas protegidas reales)', async () => {
+    // —— Respuestas mock ——
     FinancialFixedAssetService.uploadService.mockResolvedValue({
-      data: { code: '00', message: 'Archivo subido correctamente.' }
+      data: { code: '00', message: 'Archivo subido correctamente.' },
     });
     FinancialFixedAssetService.saveService.mockResolvedValue({
-      data: { code: '00', message: 'Información guardada correctamente.' }
+      data: { code: '00', message: 'Información guardada correctamente.' },
     });
     FinancialFixedAssetService.generateProjectionService.mockResolvedValue({
       data: {
@@ -60,60 +81,66 @@ describe('Flujo completo de Adiciones Temporales', () => {
         message: 'Proyección generada correctamente.',
         response: 1,
         exception: null,
-      }
+      },
     });
-    // **Stage 3: devolvemos mensaje exitoso para deducciones**
     FinancialFixedAssetService.generateTemporaryAdditionsService.mockResolvedValue({
       data: {
         timestamp: '2024-09-07T23:10:00.0000000',
         code: '00',
         message: 'Adiciones temporales generadas correctamente.',
-        response: [
-          { concept: 'Ajuste', amount: 100 }
-        ],
-        exception: null
-      }
+        response: [{ concept: 'Ajuste', amount: 100 }],
+        exception: null,
+      },
     });
 
-    // ===== STAGE 1: /upload =====
-    render(
-      <MemoryRouter initialEntries={['/upload']}>
-        <Routes>
-          <Route path="/upload" element={<FileUpload />} />
-        </Routes>
-      </MemoryRouter>
+    // ===== STAGE 1: /upload (ruta protegida real via App + GlobalRouter + PrivateRoute) =====
+    window.history.pushState({}, 'Upload', '/upload');
+    render(<App />);
+
+    expect(sessionStorage.getItem('pkce_token')).toBe('access-token-fake');
+
+    await waitFor(() =>
+      expect(
+        screen.getByRole('heading', { name: /cargar excel de activo fijos/i }),
+      ).toBeInTheDocument(),
     );
-    // Selección de periodo, upload y save (igual que antes)…
+
     const periodUp = screen.getByLabelText(/select-period/i);
     await userEvent.type(periodUp, '2022-12');
+
     const buf = fs.readFileSync(path.resolve(__dirname, 'data/assets.xlsx'));
-    const file = new File(
-      [buf],
-      'assets.xlsx',
-      { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }
-    );
+    const file = new File([buf], 'assets.xlsx', {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    });
+
     const inputFile = screen.getByLabelText(/subir archivo/i);
     await userEvent.upload(inputFile, file);
-    userEvent.click(screen.getByRole('button', { name: /subir archivo/i }));
+    await userEvent.click(screen.getByRole('button', { name: /subir archivo/i }));
+
     await waitFor(() =>
-      expect(FinancialFixedAssetService.uploadService)
-        .toHaveBeenCalledWith(file, '2022-12-01', expect.any(Function))
+      expect(FinancialFixedAssetService.uploadService).toHaveBeenCalledWith(
+        file,
+        '2022-12-01',
+        expect.any(Function),
+      ),
     );
+
     await waitFor(() =>
-      expect(screen.getByRole('button', { name: /guardar información/i }))
-        .toBeEnabled()
+      expect(screen.getByRole('button', { name: /guardar información/i })).toBeEnabled(),
     );
-    userEvent.click(screen.getByRole('button', { name: /guardar información/i }));
+    await userEvent.click(screen.getByRole('button', { name: /guardar información/i }));
+
     await waitFor(() =>
-      expect(FinancialFixedAssetService.saveService)
-        .toHaveBeenCalledWith('2022-12-01', expect.any(Function))
+      expect(FinancialFixedAssetService.saveService).toHaveBeenCalledWith(
+        '2022-12-01',
+        expect.any(Function),
+      ),
     );
-    expect(screen.getByRole('alert'))
-      .toHaveTextContent('Información guardada correctamente.');
+    expect(screen.getByRole('alert')).toHaveTextContent('Información guardada correctamente.');
 
     cleanup();
 
-    // ===== STAGE 2: /generate-projection =====
+    // ===== STAGE 2: /generate-projection (no existe en App; usamos MemoryRouter) =====
     render(
       <MemoryRouter initialEntries={['/generate-projection']}>
         <Routes>
@@ -128,15 +155,19 @@ describe('Flujo completo de Adiciones Temporales', () => {
             }
           />
         </Routes>
-      </MemoryRouter>
+      </MemoryRouter>,
     );
-    // Selección de periodo y click Generar Proyección
+
     const periodProj = screen.getByLabelText(/select-period/i);
     await userEvent.type(periodProj, '2022-12');
-    userEvent.click(screen.getByRole('button', { name: /generar proyección/i }));
+    await userEvent.click(screen.getByRole('button', { name: /generar proyección/i }));
+
     await waitFor(() =>
-      expect(FinancialFixedAssetService.generateProjectionService)
-        .toHaveBeenCalledWith('2022-12-01', { fileId: 'file-123' }, expect.any(Function))
+      expect(FinancialFixedAssetService.generateProjectionService).toHaveBeenCalledWith(
+        '2022-12-01',
+        { fileId: 'file-123' },
+        expect.any(Function),
+      ),
     );
     const alertProj = await screen.findByRole('alert');
     expect(alertProj).toHaveClass('alert alert-success');
@@ -144,29 +175,34 @@ describe('Flujo completo de Adiciones Temporales', () => {
 
     cleanup();
 
-    // ===== STAGE 3: /temporary-addition =====
-    render(
-      <MemoryRouter initialEntries={['/temporary-addition']}>
-        <Routes>
-          <Route path="/temporary-addition" element={<TemporaryAdditions />} />
-        </Routes>
-      </MemoryRouter>
-    );
-    // Seleccionar periodo para habilitar el botón
-    const periodDed = screen.getByLabelText(/select-period/i);
-    await userEvent.type(periodDed, '2022-12');
-    userEvent.click(screen.getByRole('button', { name: /generar proyección/i }));
+    // ===== STAGE 3: /temporary-addition (ruta protegida real) =====
+    window.history.pushState({}, 'TemporaryAddition', '/temporary-addition');
+    render(<App />);
 
     await waitFor(() =>
-      expect(FinancialFixedAssetService.generateTemporaryAdditionsService)
-        .toHaveBeenCalledWith('2022-12-01', 'ALL', expect.any(Function))
+      expect(
+        screen.getByRole('heading', { name: /generación de adiciones temporales/i }),
+      ).toBeInTheDocument(),
     );
 
-    // 📣 **Aquí solo comprobamos el alert de éxito**:
-    const alertDed = await screen.findByRole('alert');
-    expect(alertDed).toHaveClass('alert alert-success');
-    expect(alertDed).toHaveTextContent(
-      'Adiciones temporales generadas correctamente.'
+    const periodAdd = screen.getByLabelText(/select-period/i);
+    await userEvent.type(periodAdd, '2022-12');
+
+    // ⬇️ Desambiguar contra el dropdown del navbar
+    const main = screen.getByRole('main');
+    const generarBtn = within(main).getByRole('button', { name: /generar proyección/i });
+    await userEvent.click(generarBtn);
+
+    await waitFor(() =>
+      expect(FinancialFixedAssetService.generateTemporaryAdditionsService).toHaveBeenCalledWith(
+        '2022-12-01',
+        'ALL',
+        expect.any(Function),
+      ),
     );
+
+    const alertAdd = await screen.findByRole('alert');
+    expect(alertAdd).toHaveClass('alert alert-success');
+    expect(alertAdd).toHaveTextContent('Adiciones temporales generadas correctamente.');
   });
 });

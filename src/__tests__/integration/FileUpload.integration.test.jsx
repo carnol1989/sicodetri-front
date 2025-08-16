@@ -1,131 +1,211 @@
 // src/__tests__/integration/FileUpload.integration.test.jsx
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, cleanup } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import App from '../../App';
 import FinancialFixedAssetService from '../../services/FinancialFixedAssetService';
 import fs from 'fs';
 import path from 'path';
 
-// Mocks
+// ---------- Mocks UI auxiliares ----------
 jest.mock('../../components/CustomDatePicker', () => ({ selected, onChange }) => (
   <input
     data-testid="period-input"
     type="date"
     value={selected ? selected.toISOString().split('T')[0] : ''}
-    onChange={e => onChange(new Date(e.target.value))}
+    onChange={(e) => onChange(new Date(e.target.value))}
   />
 ));
+
+// ---------- Mock de servicios ----------
 jest.mock('../../services/FinancialFixedAssetService', () => ({
   uploadService: jest.fn(),
   saveService: jest.fn(),
 }));
 
-describe('Navegación Home → Cargar Archivo → Subir y Guardar', () => {
+// ---------- Polyfill por si la app decodifica tokens ----------
+if (typeof global.atob !== 'function') {
+  global.atob = (input) => Buffer.from(input, 'base64').toString('binary');
+}
+
+// Helper JWT "none" (fuera de cualquier factory)
+function makeJwt(payloadObj) {
+  const header = { alg: 'none', typ: 'JWT' };
+  const b64 = (obj) =>
+    Buffer.from(JSON.stringify(obj))
+      .toString('base64')
+      .replace(/=/g, '')
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_');
+  return `${b64(header)}.${b64(payloadObj)}.`; // firma vacía
+}
+
+// ---------- Mock del hook useAuth (declaración base) ----------
+jest.mock('../../hooks/useAuth', () => ({
+  useAuth: jest.fn(),
+}));
+
+describe('Integración con PrivateRoute + CallbackPage (implícito) + ErrorBoundary', () => {
   let testFile;
   const periodValue = '2025-07-01';
+  const { useAuth } = require('../../hooks/useAuth');
 
   beforeAll(() => {
     const filePath = path.resolve(__dirname, 'data', 'assets.xlsx');
     const fileBuffer = fs.readFileSync(filePath);
-    testFile = new File(
-      [fileBuffer],
-      'assets.xlsx',
-      { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }
-    );
+    testFile = new File([fileBuffer], 'assets.xlsx', {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    });
   });
 
   beforeEach(() => {
     jest.clearAllMocks();
-    window.history.pushState({}, 'Home page', '/');
+    sessionStorage.clear();
+
+    const now = Math.floor(Date.now() / 1000);
+    useAuth.mockReturnValue({
+      token: 'access-token-fake',
+      idToken: makeJwt({
+        sub: 'user-123',
+        email: 'user@example.com',
+        iat: now,
+        exp: now + 3600,
+        iss: 'https://auth.example.com',
+        aud: 'sicodetri-front',
+      }),
+      idTokenData: { sub: 'user-123', email: 'user@example.com' },
+      isAuthenticated: true,
+      isPending: false,
+      login: jest.fn(),
+      logout: jest.fn(),
+      error: null,
+    });
   });
 
-  test('desde Home navega a Cargar Archivo y luego sube y guarda correctamente con mensajes personalizados', async () => {
-    // Mock uploadService
+  afterEach(() => {
+    cleanup();
+    // ¡No llames jest.resetModules() aquí!
+  });
+
+  test('flujo feliz autenticado: /upload → subir y guardar con alertas', async () => {
+    window.history.pushState({}, 'Upload', '/upload');
+
     FinancialFixedAssetService.uploadService.mockImplementation((file, period, onProgress) => {
-      onProgress({ loaded: 100, total: 100 });
+      onProgress?.({ loaded: 100, total: 100 });
       return Promise.resolve({
         data: {
-          timestamp: '2024-09-07T23:04:16.4889082',
           code: '00',
           message: `Archivo subido correctamente: ${file.name}`,
           response: 1,
-          exception: null
-        }
+        },
       });
     });
-    // Mock saveService
     FinancialFixedAssetService.saveService.mockImplementation((period, onProgress) => {
-      onProgress({ loaded: 100, total: 100 });
+      onProgress?.({ loaded: 100, total: 100 });
       return Promise.resolve({
         data: {
-          timestamp: '2024-09-07T23:04:36.4697453',
           code: '00',
           message: `Información guardada correctamente para el periodo: ${period}`,
           response: 1,
-          exception: null
-        }
+        },
       });
     });
 
-    // 1) Render App
     const { container } = render(<App />);
 
-    // 2) Click en "Cargar Archivo" desde Home
-    const cargarLink = await screen.findByRole('link', { name: /cargar archivo/i });
-    userEvent.click(cargarLink);
+    expect(sessionStorage.getItem('pkce_token')).toBe('access-token-fake');
 
-    // 3) Llega a FileUpload
     await waitFor(() =>
       expect(
-        screen.getByRole('heading', { name: /cargar excel de activo fijos/i })
-      ).toBeInTheDocument()
+        screen.getByRole('heading', { name: /cargar excel de activo fijos/i }),
+      ).toBeInTheDocument(),
     );
 
-    // 4) Selecciona periodo
-    fireEvent.change(screen.getByTestId('period-input'), {
-      target: { value: periodValue }
-    });
+    fireEvent.change(screen.getByTestId('period-input'), { target: { value: periodValue } });
 
-    // 5) Sube el archivo
     const fileInput = container.querySelector('input[type="file"]');
     userEvent.upload(fileInput, testFile);
 
-    // 6) Espera y click en "Subir Archivo"
     const uploadButton = screen.getByRole('button', { name: /subir archivo/i });
     await waitFor(() => expect(uploadButton).toBeEnabled());
     userEvent.click(uploadButton);
 
-    // 7) Verifica alerta de subida
     const uploadAlert = await screen.findByRole('alert');
     expect(uploadAlert).toHaveClass('alert', 'alert-success');
-    expect(uploadAlert).toHaveTextContent(
-      `Archivo subido correctamente: ${testFile.name}`
-    );
+    expect(uploadAlert).toHaveTextContent(`Archivo subido correctamente: ${testFile.name}`);
 
-    // 8) Click en "Guardar Información"
     const saveButton = screen.getByRole('button', { name: /guardar información/i });
     await waitFor(() => expect(saveButton).toBeEnabled());
     userEvent.click(saveButton);
 
-    // 9) Espera explícita al cambio de texto en el mismo alert
     await waitFor(() =>
       expect(screen.getByRole('alert')).toHaveTextContent(
-        `Información guardada correctamente para el periodo: ${periodValue}`
-      )
+        `Información guardada correctamente para el periodo: ${periodValue}`,
+      ),
     );
-    // Y sigue siendo alerta de éxito
     expect(screen.getByRole('alert')).toHaveClass('alert', 'alert-success');
 
-    // 10) Aserciones finales
     expect(FinancialFixedAssetService.uploadService).toHaveBeenCalledWith(
       testFile,
       periodValue,
-      expect.any(Function)
+      expect.any(Function),
     );
     expect(FinancialFixedAssetService.saveService).toHaveBeenCalledWith(
       periodValue,
-      expect.any(Function)
+      expect.any(Function),
     );
+  });
+
+  test('cuando FileUpload falla al renderizar, ErrorBoundary muestra su fallback real', async () => {
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+    jest.isolateModules(() => {
+      window.history.pushState({}, 'Upload', '/upload');
+
+      const now = Math.floor(Date.now() / 1000);
+      jest.doMock('../../hooks/useAuth', () => ({
+        useAuth: jest.fn(() => ({
+          token: 'access-token-fake',
+          idToken: 'fake-idtoken',
+          idTokenData: { sub: 'user-123', email: 'user@example.com' },
+          isAuthenticated: true,
+          isPending: false,
+          login: jest.fn(),
+          logout: jest.fn(),
+          error: null,
+        })),
+      }));
+
+      jest.doMock('../../views/FileUpload', () => {
+        const Boom = () => {
+          throw new Error('Render crash en FileUpload');
+        };
+        return { __esModule: true, default: Boom };
+      });
+
+      const FreshApp = require('../../App').default;
+      render(<FreshApp />);
+
+      // A) Fallback UI visible
+      expect(screen.getByText(/la aplicación encontró un problema/i)).toBeInTheDocument();
+
+      // B) <pre> con algún mensaje
+      const pre = screen.getByText((_, node) => {
+        return node?.tagName?.toLowerCase() === 'pre' && !!node.textContent?.trim();
+      });
+      expect(pre).toBeInTheDocument();
+
+      // C) Botón de recarga
+      expect(screen.getByRole('button', { name: /recargar/i })).toBeInTheDocument();
+    });
+
+    // D) Validar que console.error fue llamado al menos una vez con un Error
+    expect(consoleErrorSpy).toHaveBeenCalled();
+    const hadErrorObj = consoleErrorSpy.mock.calls.some(([err]) => err instanceof Error);
+    expect(hadErrorObj).toBe(true);
+
+    consoleErrorSpy.mockRestore();
+    jest.dontMock('../../views/FileUpload');
+    jest.dontMock('../../hooks/useAuth');
   });
 });

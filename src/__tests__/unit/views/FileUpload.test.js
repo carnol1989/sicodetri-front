@@ -32,7 +32,7 @@ describe('FileUpload Component', () => {
     const dateInput = screen.getByTestId('datepicker');
     // <--- Aquí usamos getByRole en vez de getByText
     const uploadBtn = screen.getByRole('button', { name: 'Subir Archivo' });
-    const saveBtn   = screen.getByRole('button', { name: 'Guardar Información' });
+    const saveBtn = screen.getByRole('button', { name: 'Guardar Información' });
     return { ...utils, fileInput, dateInput, uploadBtn, saveBtn };
   }
 
@@ -45,7 +45,9 @@ describe('FileUpload Component', () => {
   test('muestra error si trato de subir sin periodo', async () => {
     const { fileInput, uploadBtn } = setup();
     // selecciono archivo pero no periodo
-    const file = new File(['hola'], 'test.xlsx', { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    const file = new File(['hola'], 'test.xlsx', {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    });
     fireEvent.change(fileInput, { target: { files: [file] } });
     // ahora el botón de subir se habilita (periodo sigue vacío, pero disabled chequea selectedFiles&&period)
     // en este caso, como period es falsy, el onClick no dispara uploadService, sino el mensaje
@@ -91,7 +93,7 @@ describe('FileUpload Component', () => {
     expect(FinancialFixedAssetService.uploadService).toHaveBeenCalledWith(
       file,
       '2025-07-01',
-      expect.any(Function)
+      expect.any(Function),
     );
 
     // botón de guardar ahora habilitado
@@ -104,7 +106,9 @@ describe('FileUpload Component', () => {
     const { fileInput, dateInput, uploadBtn, saveBtn } = setup();
     // seteo periodo y archivo
     fireEvent.change(dateInput, { target: { value: '2025-07-02' } });
-    const file = new File(['x'], 'x.xlsx', { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    const file = new File(['x'], 'x.xlsx', {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    });
     fireEvent.change(fileInput, { target: { files: [file] } });
 
     await act(async () => {
@@ -120,7 +124,9 @@ describe('FileUpload Component', () => {
   });
 
   test('guardar exitoso muestra mensaje y progreso', async () => {
-    FinancialFixedAssetService.uploadService.mockResolvedValue({ data: { code: '00', message: 'OK' } });
+    FinancialFixedAssetService.uploadService.mockResolvedValue({
+      data: { code: '00', message: 'OK' },
+    });
     FinancialFixedAssetService.saveService.mockImplementation((period, onProgress) => {
       onProgress({ loaded: 50, total: 200 });
       onProgress({ loaded: 200, total: 200 });
@@ -130,7 +136,9 @@ describe('FileUpload Component', () => {
     const { fileInput, dateInput, uploadBtn, saveBtn, container } = setup();
     // primero subir para habilitar guardar
     fireEvent.change(dateInput, { target: { value: '2025-07-03' } });
-    const file = new File(['1'], '1.xlsx', { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    const file = new File(['1'], '1.xlsx', {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    });
     fireEvent.change(fileInput, { target: { files: [file] } });
     await act(async () => fireEvent.click(uploadBtn));
     await waitFor(() => screen.getByRole('alert'));
@@ -151,18 +159,22 @@ describe('FileUpload Component', () => {
 
     expect(FinancialFixedAssetService.saveService).toHaveBeenCalledWith(
       '2025-07-03',
-      expect.any(Function)
+      expect.any(Function),
     );
   });
 
   test('error en guardar resetea estado y muestra mensaje', async () => {
-    FinancialFixedAssetService.uploadService.mockResolvedValue({ data: { code: '00', message: 'OK' } });
+    FinancialFixedAssetService.uploadService.mockResolvedValue({
+      data: { code: '00', message: 'OK' },
+    });
     FinancialFixedAssetService.saveService.mockRejectedValue(new Error('fail save'));
 
     const { fileInput, dateInput, uploadBtn, saveBtn } = setup();
     // subir
     fireEvent.change(dateInput, { target: { value: '2025-07-04' } });
-    const file = new File(['abc'], 'abc.xlsx', { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    const file = new File(['abc'], 'abc.xlsx', {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    });
     fireEvent.change(fileInput, { target: { files: [file] } });
     await act(async () => fireEvent.click(uploadBtn));
     await waitFor(() => screen.getByRole('alert'));
@@ -170,7 +182,9 @@ describe('FileUpload Component', () => {
     // guardar
     await act(async () => fireEvent.click(saveBtn));
 
-    expect(await screen.findByRole('alert')).toHaveTextContent('No se pudo guardar la información.');
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'No se pudo guardar la información.',
+    );
     expect(screen.getByRole('alert')).toHaveClass('alert-danger');
 
     // tras error, save vuelve a deshabilitarse
@@ -181,11 +195,9 @@ describe('FileUpload Component', () => {
     const { fileInput, saveBtn } = setup();
 
     // 1) selecciono archivo (period sigue vacío)
-    const file = new File(
-      ['contenido'],
-      'archivo.xlsx',
-      { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }
-    );
+    const file = new File(['contenido'], 'archivo.xlsx', {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    });
     fireEvent.change(fileInput, { target: { files: [file] } });
 
     // 2) hago click en "Guardar Información" sin periodo
@@ -197,9 +209,7 @@ describe('FileUpload Component', () => {
     expect(FinancialFixedAssetService.saveService).not.toHaveBeenCalled();
 
     // debe mostrar la alerta de periodo faltante
-    expect(await screen.findByRole('alert')).toHaveTextContent(
-      'Por favor seleccione un periodo.'
-    );
+    expect(await screen.findByRole('alert')).toHaveTextContent('Por favor seleccione un periodo.');
     expect(screen.getByRole('alert')).toHaveClass('alert-danger');
   });
 });

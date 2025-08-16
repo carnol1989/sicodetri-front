@@ -1,30 +1,25 @@
 // src/__tests__/integration/PermanentAdditions.integration.test.jsx
 import React from 'react';
-import {
-  render,
-  screen,
-  waitFor,
-  cleanup
-} from '@testing-library/react';
+import { render, screen, waitFor, cleanup, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import path from 'path';
 import fs from 'fs';
 
-// 1) Stub de CustomDatePicker
+// 1) Stub de CustomDatePicker (igual que tu versión)
 jest.mock('../../components/CustomDatePicker', () => ({ selected, onChange }) => (
   <input
     aria-label="select-period"
     type="month"
     value={selected ? selected.toISOString().slice(0, 7) : ''}
-    onChange={e => {
+    onChange={(e) => {
       const [y, m] = e.target.value.split('-');
       onChange(new Date(y, m - 1, 1));
     }}
   />
 ));
 
-// 2) Mock de servicios
+// 2) Mock de servicios (mantenemos default como objeto con métodos)
 jest.mock('../../services/FinancialFixedAssetService', () => ({
   __esModule: true,
   default: {
@@ -37,21 +32,47 @@ jest.mock('../../services/FinancialFixedAssetService', () => ({
 import FinancialFixedAssetService from '../../services/FinancialFixedAssetService';
 
 // 3) Componentes reales
-import FileUpload from '../../views/FileUpload';
+import App from '../../App';
 import ProjectionGenerator from '../../components/ProjectionGenerator';
-import PermanentAdditions from '../../views/PermanentAdditions';
 
-describe('Flujo completo de Adiciones Permanentes', () => {
-  beforeEach(() => jest.clearAllMocks());
+// ---------- Mock del hook useAuth para que PrivateRoute deje pasar ----------
+jest.mock('../../hooks/useAuth', () => ({
+  useAuth: jest.fn(),
+}));
+const { useAuth } = require('../../hooks/useAuth');
+
+// (Opcional) Si tu app decodifica tokens y usa atob en algún lado, polyfill:
+if (typeof global.atob !== 'function') {
+  global.atob = (input) => Buffer.from(input, 'base64').toString('binary');
+}
+
+describe('Flujo completo de Adiciones Permanentes con autenticación (PrivateRoute)', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    sessionStorage.clear();
+
+    // Usuario autenticado: TokenBridge guardará pkce_token y PrivateRoute permitirá el acceso
+    useAuth.mockReturnValue({
+      token: 'access-token-fake',
+      idToken: 'fake-idtoken',
+      idTokenData: { sub: 'user-123', email: 'user@example.com' },
+      isAuthenticated: true,
+      isPending: false,
+      login: jest.fn(),
+      logout: jest.fn(),
+      error: null,
+    });
+  });
+
   afterEach(cleanup);
 
-  test('Subir → Guardar → Generar Proyección → Adiciones Permanentes', async () => {
-    // —— 1) Mockeos de respuesta —
+  test('Subir → Guardar → Generar Proyección → Adiciones Permanentes (con rutas protegidas reales)', async () => {
+    // —— 1) Mockeos de respuesta ——
     FinancialFixedAssetService.uploadService.mockResolvedValue({
-      data: { code: '00', message: 'Archivo subido correctamente.' }
+      data: { code: '00', message: 'Archivo subido correctamente.' },
     });
     FinancialFixedAssetService.saveService.mockResolvedValue({
-      data: { code: '00', message: 'Información guardada correctamente.' }
+      data: { code: '00', message: 'Información guardada correctamente.' },
     });
     FinancialFixedAssetService.generateProjectionService.mockResolvedValue({
       data: {
@@ -60,65 +81,73 @@ describe('Flujo completo de Adiciones Permanentes', () => {
         message: 'Proyección generada correctamente.',
         response: 1,
         exception: null,
-      }
+      },
     });
     FinancialFixedAssetService.generatePermanentAdditionsService.mockResolvedValue({
       data: {
         timestamp: '2024-09-07T23:10:00.0000000',
         code: '00',
         message: 'Adiciones permanentes generadas correctamente.',
-        response: [
-          { concept: 'Ajuste', amount: 332 }
-        ],
-        exception: null
-      }
+        response: [{ concept: 'Ajuste', amount: 332 }],
+        exception: null,
+      },
     });
 
-    // ===== STAGE 1: /upload =====
-    render(
-      <MemoryRouter initialEntries={['/upload']}>
-        <Routes>
-          <Route path="/upload" element={<FileUpload />} />
-        </Routes>
-      </MemoryRouter>
+    // ===== STAGE 1: /upload (ruta protegida real a través de App + GlobalRouter + PrivateRoute) =====
+    window.history.pushState({}, 'Upload', '/upload');
+    render(<App />);
+
+    // (Opcional) TokenBridge persistido
+    expect(sessionStorage.getItem('pkce_token')).toBe('access-token-fake');
+
+    // Debe estar en la pantalla de FileUpload (encabezado real)
+    await waitFor(() =>
+      expect(
+        screen.getByRole('heading', { name: /cargar excel de activo fijos/i }),
+      ).toBeInTheDocument(),
     );
+
+    // Selección periodo
     const periodUp = screen.getByLabelText(/select-period/i);
     await userEvent.type(periodUp, '2022-12');
 
+    // Archivo
     const buf = fs.readFileSync(path.resolve(__dirname, 'data/assets.xlsx'));
-    const file = new File(
-      [buf],
-      'assets.xlsx',
-      { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }
-    );
+    const file = new File([buf], 'assets.xlsx', {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    });
 
     // Subir archivo
     const inputFile = screen.getByLabelText(/subir archivo/i);
     await userEvent.upload(inputFile, file);
-    userEvent.click(screen.getByRole('button', { name: /subir archivo/i }));
+    await userEvent.click(screen.getByRole('button', { name: /subir archivo/i }));
 
-    // Esperar al mock y al alert de subida
+    // Espera al mock y a la llamada correcta
     await waitFor(() =>
-      expect(FinancialFixedAssetService.uploadService)
-        .toHaveBeenCalledWith(file, '2022-12-01', expect.any(Function))
+      expect(FinancialFixedAssetService.uploadService).toHaveBeenCalledWith(
+        file,
+        '2022-12-01',
+        expect.any(Function),
+      ),
     );
 
     // Guardar información
     await waitFor(() =>
-      expect(screen.getByRole('button', { name: /guardar información/i }))
-        .toBeEnabled()
+      expect(screen.getByRole('button', { name: /guardar información/i })).toBeEnabled(),
     );
-    userEvent.click(screen.getByRole('button', { name: /guardar información/i }));
+    await userEvent.click(screen.getByRole('button', { name: /guardar información/i }));
+
     await waitFor(() =>
-      expect(FinancialFixedAssetService.saveService)
-        .toHaveBeenCalledWith('2022-12-01', expect.any(Function))
+      expect(FinancialFixedAssetService.saveService).toHaveBeenCalledWith(
+        '2022-12-01',
+        expect.any(Function),
+      ),
     );
-    expect(screen.getByRole('alert'))
-      .toHaveTextContent('Información guardada correctamente.');
+    expect(screen.getByRole('alert')).toHaveTextContent('Información guardada correctamente.');
 
     cleanup();
 
-    // ===== STAGE 2: /generate-projection =====
+    // ===== STAGE 2: /generate-projection (no existe en App: usamos MemoryRouter como antes) =====
     render(
       <MemoryRouter initialEntries={['/generate-projection']}>
         <Routes>
@@ -133,15 +162,19 @@ describe('Flujo completo de Adiciones Permanentes', () => {
             }
           />
         </Routes>
-      </MemoryRouter>
+      </MemoryRouter>,
     );
-    // Selección de periodo y click Generar Proyección
+
     const periodProj = screen.getByLabelText(/select-period/i);
     await userEvent.type(periodProj, '2022-12');
-    userEvent.click(screen.getByRole('button', { name: /generar proyección/i }));
+    await userEvent.click(screen.getByRole('button', { name: /generar proyección/i }));
+
     await waitFor(() =>
-      expect(FinancialFixedAssetService.generateProjectionService)
-        .toHaveBeenCalledWith('2022-12-01', { fileId: 'file-123' }, expect.any(Function))
+      expect(FinancialFixedAssetService.generateProjectionService).toHaveBeenCalledWith(
+        '2022-12-01',
+        { fileId: 'file-123' },
+        expect.any(Function),
+      ),
     );
     const alertProj = await screen.findByRole('alert');
     expect(alertProj).toHaveClass('alert alert-success');
@@ -149,28 +182,36 @@ describe('Flujo completo de Adiciones Permanentes', () => {
 
     cleanup();
 
-    // ===== STAGE 3: /permanent-addition =====
-    render(
-      <MemoryRouter initialEntries={['/permanent-addition']}>
-        <Routes>
-          <Route path="/permanent-addition" element={<PermanentAdditions />} />
-        </Routes>
-      </MemoryRouter>
-    );
-    // Seleccionar periodo para habilitar el botón
-    const periodDed = screen.getByLabelText(/select-period/i);
-    await userEvent.type(periodDed, '2022-12');
-    userEvent.click(screen.getByRole('button', { name: /generar proyección/i }));
+    // ===== STAGE 3: /permanent-addition (ruta protegida real) =====
+    window.history.pushState({}, 'PermanentAddition', '/permanent-addition');
+    render(<App />);
 
     await waitFor(() =>
-      expect(FinancialFixedAssetService.generatePermanentAdditionsService)
-        .toHaveBeenCalledWith('2022-12-01', '332', expect.any(Function))
+      expect(
+        screen.getByRole('heading', { name: /generación de adiciones permanentes/i }),
+      ).toBeInTheDocument(),
+    );
+
+    const periodDed = screen.getByLabelText(/select-period/i);
+    await userEvent.type(periodDed, '2022-12');
+
+    // Opción A: scoping al <main> si tu plantilla usa landmark
+    const main = screen.getByRole('main');
+    const generarBtn = within(main).getByRole('button', { name: /generar proyección/i });
+    await userEvent.click(generarBtn);
+
+    // Opción B (si no tienes <main>): usa getAllByRole('button', ...) y filtra por visibilidad/posición
+
+    await waitFor(() =>
+      expect(FinancialFixedAssetService.generatePermanentAdditionsService).toHaveBeenCalledWith(
+        '2022-12-01',
+        '332',
+        expect.any(Function),
+      ),
     );
 
     const alertDed = await screen.findByRole('alert');
     expect(alertDed).toHaveClass('alert alert-success');
-    expect(alertDed).toHaveTextContent(
-      'Adiciones permanentes generadas correctamente.'
-    );
+    expect(alertDed).toHaveTextContent('Adiciones permanentes generadas correctamente.');
   });
 });

@@ -21,13 +21,12 @@ describe('TemporaryAdditions component', () => {
     const [[props]] = ProjectionGenerator.mock.calls;
 
     expect(props.title).toBe('Generación de Adiciones Temporales');
-    expect(props.serviceFn).toBe(
-      FinancialFixedAssetService.generateTemporaryAdditionsService);
+    expect(props.serviceFn).toBe(FinancialFixedAssetService.generateTemporaryAdditionsService);
     expect(props.param).toBe('ALL');
   });
 
   it('coincide con el snapshot', () => {
     const { asFragment } = render(<TemporaryAdditions />);
     expect(asFragment()).toMatchSnapshot();
-  })
+  });
 });

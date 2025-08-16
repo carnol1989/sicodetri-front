@@ -16,8 +16,7 @@ describe('ReportTaxBook', () => {
       default: mockReportTemplate,
     }));
 
-    const ReportTaxBook = require('../../../views/ReportTaxBook')
-      .default;
+    const ReportTaxBook = require('../../../views/ReportTaxBook').default;
 
     render(<ReportTaxBook />);
     expect(mockReportTemplate).toHaveBeenCalledTimes(1);
@@ -25,9 +24,9 @@ describe('ReportTaxBook', () => {
       {
         title: 'Reporte: Libro Tributario de Activo Fijos',
         option: '1',
-        withYear: true
+        withYear: true,
       },
-      {}
+      {},
     );
   });
 
@@ -35,20 +34,15 @@ describe('ReportTaxBook', () => {
     jest.doMock('../../../components/ReportTemplate', () => ({
       __esModule: true,
       default: ({ title, option, withYear }) => (
-        <div data-testid="report-template">
-          {`${title}|${option}|${withYear}`}
-        </div>
-      )
+        <div data-testid="report-template">{`${title}|${option}|${withYear}`}</div>
+      ),
     }));
 
-    const ReportTaxBook = require('../../../views/ReportTaxBook')
-      .default;
+    const ReportTaxBook = require('../../../views/ReportTaxBook').default;
 
     render(<ReportTaxBook />);
-    const tpl = screen.getByTestId("report-template");
+    const tpl = screen.getByTestId('report-template');
     expect(tpl).toBeInTheDocument();
-    expect(tpl).toHaveTextContent(
-      'Reporte: Libro Tributario de Activo Fijos'
-    );
+    expect(tpl).toHaveTextContent('Reporte: Libro Tributario de Activo Fijos');
   });
 });
