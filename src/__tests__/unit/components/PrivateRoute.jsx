@@ -33,12 +33,10 @@ describe('PrivateRoute Test', () => {
     render(
       <PrivateRoute>
         <div data-testid="child">child</div>
-      </PrivateRoute>
+      </PrivateRoute>,
     );
 
-    expect(
-      screen.getByText('Cargando autenticación…')
-    ).toBeInTheDocument();
+    expect(screen.getByText('Cargando autenticación…')).toBeInTheDocument();
     expect(screen.queryByTestId('child')).not.toBeInTheDocument();
     expect(login).not.toHaveBeenCalled();
   });
@@ -55,7 +53,7 @@ describe('PrivateRoute Test', () => {
     const { container } = render(
       <PrivateRoute>
         <div data-testid="child">child</div>
-      </PrivateRoute>
+      </PrivateRoute>,
     );
 
     expect(login).toHaveBeenCalledTimes(1);
@@ -76,7 +74,7 @@ describe('PrivateRoute Test', () => {
     render(
       <PrivateRoute>
         <div data-testid="child">child</div>
-      </PrivateRoute>
+      </PrivateRoute>,
     );
 
     expect(screen.getByTestId('child')).toBeInTheDocument();
@@ -94,7 +92,7 @@ describe('PrivateRoute Test', () => {
     const { container } = render(
       <PrivateRoute>
         <div data-testid="child">child</div>
-      </PrivateRoute>
+      </PrivateRoute>,
     );
 
     // no explota, no renderiza hijos (retorna null)

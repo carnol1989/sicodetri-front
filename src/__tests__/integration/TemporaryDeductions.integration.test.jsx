@@ -1,6 +1,6 @@
 // src/__tests__/integration/TemporaryDeductions.integration.test.jsx
 import React from 'react';
-import { render, screen, waitFor, cleanup } from '@testing-library/react';
+import { render, screen, waitFor, cleanup, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import path from 'path';
@@ -32,16 +32,42 @@ jest.mock('../../services/FinancialFixedAssetService', () => ({
 import FinancialFixedAssetService from '../../services/FinancialFixedAssetService';
 
 // 3) Componentes reales
-import FileUpload from '../../views/FileUpload';
+import App from '../../App';
 import ProjectionGenerator from '../../components/ProjectionGenerator';
-import TemporaryDeductions from '../../views/TemporaryDeductions';
 
-describe('Flujo completo de Deducciones Temporales', () => {
-  beforeEach(() => jest.clearAllMocks());
+// 4) Mock de useAuth para pasar PrivateRoute y activar TokenBridge
+jest.mock('../../hooks/useAuth', () => ({
+  useAuth: jest.fn(),
+}));
+const { useAuth } = require('../../hooks/useAuth');
+
+// (Opcional) Polyfill si tu app decodifica tokens
+if (typeof global.atob !== 'function') {
+  global.atob = (input) => Buffer.from(input, 'base64').toString('binary');
+}
+
+describe('Flujo completo de Deducciones Temporales con autenticación (PrivateRoute)', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    sessionStorage.clear();
+
+    // Usuario autenticado
+    useAuth.mockReturnValue({
+      token: 'access-token-fake',
+      idToken: 'fake-idtoken',
+      idTokenData: { sub: 'user-123', email: 'user@example.com' },
+      isAuthenticated: true,
+      isPending: false,
+      login: jest.fn(),
+      logout: jest.fn(),
+      error: null,
+    });
+  });
+
   afterEach(cleanup);
 
-  test('Subir → Guardar → Generar Proyección → Deducciones Temporales', async () => {
-    // —— 1) Mockeos de respuesta —
+  test('Subir → Guardar → Generar Proyección → Deducciones Temporales (con rutas protegidas reales)', async () => {
+    // —— Respuestas mock ——
     FinancialFixedAssetService.uploadService.mockResolvedValue({
       data: { code: '00', message: 'Archivo subido correctamente.' },
     });
@@ -57,7 +83,6 @@ describe('Flujo completo de Deducciones Temporales', () => {
         exception: null,
       },
     });
-    // **Stage 3: devolvemos mensaje exitoso para deducciones**
     FinancialFixedAssetService.generateTemporaryDeductionsService.mockResolvedValue({
       data: {
         timestamp: '2024-09-07T23:10:00.0000000',
@@ -68,24 +93,30 @@ describe('Flujo completo de Deducciones Temporales', () => {
       },
     });
 
-    // ===== STAGE 1: /upload =====
-    render(
-      <MemoryRouter initialEntries={['/upload']}>
-        <Routes>
-          <Route path="/upload" element={<FileUpload />} />
-        </Routes>
-      </MemoryRouter>,
+    // ===== STAGE 1: /upload (ruta protegida real via App + GlobalRouter + PrivateRoute) =====
+    window.history.pushState({}, 'Upload', '/upload');
+    render(<App />);
+
+    expect(sessionStorage.getItem('pkce_token')).toBe('access-token-fake');
+
+    await waitFor(() =>
+      expect(
+        screen.getByRole('heading', { name: /cargar excel de activo fijos/i }),
+      ).toBeInTheDocument(),
     );
-    // Selección de periodo, upload y save (igual que antes)…
+
     const periodUp = screen.getByLabelText(/select-period/i);
     await userEvent.type(periodUp, '2022-12');
+
     const buf = fs.readFileSync(path.resolve(__dirname, 'data/assets.xlsx'));
     const file = new File([buf], 'assets.xlsx', {
       type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     });
+
     const inputFile = screen.getByLabelText(/subir archivo/i);
     await userEvent.upload(inputFile, file);
-    userEvent.click(screen.getByRole('button', { name: /subir archivo/i }));
+    await userEvent.click(screen.getByRole('button', { name: /subir archivo/i }));
+
     await waitFor(() =>
       expect(FinancialFixedAssetService.uploadService).toHaveBeenCalledWith(
         file,
@@ -93,10 +124,12 @@ describe('Flujo completo de Deducciones Temporales', () => {
         expect.any(Function),
       ),
     );
+
     await waitFor(() =>
       expect(screen.getByRole('button', { name: /guardar información/i })).toBeEnabled(),
     );
-    userEvent.click(screen.getByRole('button', { name: /guardar información/i }));
+    await userEvent.click(screen.getByRole('button', { name: /guardar información/i }));
+
     await waitFor(() =>
       expect(FinancialFixedAssetService.saveService).toHaveBeenCalledWith(
         '2022-12-01',
@@ -107,7 +140,7 @@ describe('Flujo completo de Deducciones Temporales', () => {
 
     cleanup();
 
-    // ===== STAGE 2: /generate-projection =====
+    // ===== STAGE 2: /generate-projection (no existe en App; usamos MemoryRouter) =====
     render(
       <MemoryRouter initialEntries={['/generate-projection']}>
         <Routes>
@@ -124,10 +157,11 @@ describe('Flujo completo de Deducciones Temporales', () => {
         </Routes>
       </MemoryRouter>,
     );
-    // Selección de periodo y click Generar Proyección
+
     const periodProj = screen.getByLabelText(/select-period/i);
     await userEvent.type(periodProj, '2022-12');
-    userEvent.click(screen.getByRole('button', { name: /generar proyección/i }));
+    await userEvent.click(screen.getByRole('button', { name: /generar proyección/i }));
+
     await waitFor(() =>
       expect(FinancialFixedAssetService.generateProjectionService).toHaveBeenCalledWith(
         '2022-12-01',
@@ -141,18 +175,23 @@ describe('Flujo completo de Deducciones Temporales', () => {
 
     cleanup();
 
-    // ===== STAGE 3: /temporary-deductions =====
-    render(
-      <MemoryRouter initialEntries={['/temporary-deductions']}>
-        <Routes>
-          <Route path="/temporary-deductions" element={<TemporaryDeductions />} />
-        </Routes>
-      </MemoryRouter>,
+    // ===== STAGE 3: /temporary-deduction (ruta protegida real; ¡ojo singular!) =====
+    window.history.pushState({}, 'TemporaryDeduction', '/temporary-deduction');
+    render(<App />);
+
+    await waitFor(() =>
+      expect(
+        screen.getByRole('heading', { name: /generación de deducciones temporales/i }),
+      ).toBeInTheDocument(),
     );
-    // Seleccionar periodo para habilitar el botón
+
     const periodDed = screen.getByLabelText(/select-period/i);
     await userEvent.type(periodDed, '2022-12');
-    userEvent.click(screen.getByRole('button', { name: /generar proyección/i }));
+
+    // Evitar el "Generar Proyección" del navbar (role="button" también)
+    const main = screen.getByRole('main');
+    const generarBtn = within(main).getByRole('button', { name: /generar proyección/i });
+    await userEvent.click(generarBtn);
 
     await waitFor(() =>
       expect(FinancialFixedAssetService.generateTemporaryDeductionsService).toHaveBeenCalledWith(
@@ -162,7 +201,6 @@ describe('Flujo completo de Deducciones Temporales', () => {
       ),
     );
 
-    // 📣 **Aquí solo comprobamos el alert de éxito**:
     const alertDed = await screen.findByRole('alert');
     expect(alertDed).toHaveClass('alert alert-success');
     expect(alertDed).toHaveTextContent('Deducciones temporales generadas correctamente.');

@@ -29,18 +29,10 @@ function Probe({ showButtons = true }) {
       {showButtons && (
         <>
           {/* Botones solo si existen handlers, para poder clickear en el test 1 */}
-          <button
-            onClick={a.login}
-            disabled={!a.login}
-            aria-label="login-btn"
-          >
+          <button onClick={a.login} disabled={!a.login} aria-label="login-btn">
             login
           </button>
-          <button
-            onClick={a.logout}
-            disabled={!a.logout}
-            aria-label="logout-btn"
-          >
+          <button onClick={a.logout} disabled={!a.logout} aria-label="logout-btn">
             logout
           </button>
         </>
@@ -66,13 +58,13 @@ describe('useAuth', () => {
     render(
       <AuthContext.Provider value={value}>
         <Probe />
-      </AuthContext.Provider>
+      </AuthContext.Provider>,
     );
 
     expect(screen.getByTestId('token')).toHaveTextContent('tok');
     expect(screen.getByTestId('idToken')).toHaveTextContent('idt');
     expect(screen.getByTestId('idTokenData')).toHaveTextContent(
-      JSON.stringify({ sub: '123', name: 'Alice' })
+      JSON.stringify({ sub: '123', name: 'Alice' }),
     );
     expect(screen.getByTestId('isAuthenticated')).toHaveTextContent('true');
     expect(screen.getByTestId('isPending')).toHaveTextContent('true');
@@ -116,7 +108,7 @@ describe('useAuth', () => {
     const { rerender } = render(
       <AuthContext.Provider value={value1}>
         <Probe />
-      </AuthContext.Provider>
+      </AuthContext.Provider>,
     );
 
     expect(screen.getByTestId('token')).toHaveTextContent('A');
@@ -136,7 +128,7 @@ describe('useAuth', () => {
     rerender(
       <AuthContext.Provider value={value2}>
         <Probe />
-      </AuthContext.Provider>
+      </AuthContext.Provider>,
     );
 
     // token '' -> hook mapea a null -> String(null) === "null"

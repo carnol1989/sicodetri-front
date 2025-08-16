@@ -24,12 +24,10 @@ describe('ErrorPage Test', () => {
 
     // Mock seguro de window.location.reload a través del getter de location
     reloadMock = jest.fn();
-    locationGetterSpy = jest
-      .spyOn(window, 'location', 'get')
-      .mockReturnValue({
-        ...window.location,
-        reload: reloadMock,
-      });
+    locationGetterSpy = jest.spyOn(window, 'location', 'get').mockReturnValue({
+      ...window.location,
+      reload: reloadMock,
+    });
   });
 
   afterEach(() => {
@@ -46,7 +44,7 @@ describe('ErrorPage Test', () => {
     render(
       <MemoryRouter>
         <ErrorPage />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     // Título
@@ -83,7 +81,7 @@ describe('ErrorPage Test', () => {
     render(
       <MemoryRouter>
         <ErrorPage />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     // status tomado de query

@@ -24,7 +24,7 @@ describe('CallbackPage Test', () => {
           {/* Ruta destino para verificar la redirección */}
           <Route path="/" element={<div data-testid="home">HOME</div>} />
         </Routes>
-      </MemoryRouter>
+      </MemoryRouter>,
     );
   };
 

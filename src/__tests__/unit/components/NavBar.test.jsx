@@ -38,7 +38,7 @@ describe('NavBar component Test', () => {
     render(
       <MemoryRouter>
         <NavBar />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
   it('renderiza estructura base: <nav>, brand y toggler', () => {

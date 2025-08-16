@@ -25,12 +25,10 @@ describe('ErrorBoundary', () => {
 
     // Mock seguro de window.location via getter
     reloadMock = jest.fn();
-    locationGetterSpy = jest
-      .spyOn(window, 'location', 'get')
-      .mockReturnValue({
-        ...window.location,
-        reload: reloadMock,
-      });
+    locationGetterSpy = jest.spyOn(window, 'location', 'get').mockReturnValue({
+      ...window.location,
+      reload: reloadMock,
+    });
   });
 
   afterEach(() => {
@@ -42,20 +40,18 @@ describe('ErrorBoundary', () => {
     render(
       <ErrorBoundary>
         <div data-testid="ok">Contenido OK</div>
-      </ErrorBoundary>
+      </ErrorBoundary>,
     );
 
     expect(screen.getByTestId('ok')).toBeInTheDocument();
-    expect(
-      screen.queryByText('La aplicación encontró un problema')
-    ).not.toBeInTheDocument();
+    expect(screen.queryByText('La aplicación encontró un problema')).not.toBeInTheDocument();
   });
 
   it('muestra fallback con mensaje de error, llama componentDidCatch y recarga al click', () => {
     render(
       <ErrorBoundary>
         <ThrowerWithMessage />
-      </ErrorBoundary>
+      </ErrorBoundary>,
     );
 
     // Fallback visible y mensaje del error
@@ -70,7 +66,7 @@ describe('ErrorBoundary', () => {
         args[0].message === 'Boom!' &&
         args[1] &&
         typeof args[1] === 'object' &&
-        typeof args[1].componentStack === 'string'
+        typeof args[1].componentStack === 'string',
     );
     expect(matchingCall).toBeTruthy();
 
@@ -83,7 +79,7 @@ describe('ErrorBoundary', () => {
     render(
       <ErrorBoundary>
         <ThrowerWithoutMessage />
-      </ErrorBoundary>
+      </ErrorBoundary>,
     );
 
     expect(screen.getByText('La aplicación encontró un problema')).toBeInTheDocument();
