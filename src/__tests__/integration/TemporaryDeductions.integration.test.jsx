@@ -1,11 +1,6 @@
 // src/__tests__/integration/TemporaryDeductions.integration.test.jsx
 import React from 'react';
-import {
-  render,
-  screen,
-  waitFor,
-  cleanup
-} from '@testing-library/react';
+import { render, screen, waitFor, cleanup } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import path from 'path';
@@ -17,7 +12,7 @@ jest.mock('../../components/CustomDatePicker', () => ({ selected, onChange }) =>
     aria-label="select-period"
     type="month"
     value={selected ? selected.toISOString().slice(0, 7) : ''}
-    onChange={e => {
+    onChange={(e) => {
       const [y, m] = e.target.value.split('-');
       onChange(new Date(y, m - 1, 1));
     }}
@@ -48,10 +43,10 @@ describe('Flujo completo de Deducciones Temporales', () => {
   test('Subir → Guardar → Generar Proyección → Deducciones Temporales', async () => {
     // —— 1) Mockeos de respuesta —
     FinancialFixedAssetService.uploadService.mockResolvedValue({
-      data: { code: '00', message: 'Archivo subido correctamente.' }
+      data: { code: '00', message: 'Archivo subido correctamente.' },
     });
     FinancialFixedAssetService.saveService.mockResolvedValue({
-      data: { code: '00', message: 'Información guardada correctamente.' }
+      data: { code: '00', message: 'Información guardada correctamente.' },
     });
     FinancialFixedAssetService.generateProjectionService.mockResolvedValue({
       data: {
@@ -60,7 +55,7 @@ describe('Flujo completo de Deducciones Temporales', () => {
         message: 'Proyección generada correctamente.',
         response: 1,
         exception: null,
-      }
+      },
     });
     // **Stage 3: devolvemos mensaje exitoso para deducciones**
     FinancialFixedAssetService.generateTemporaryDeductionsService.mockResolvedValue({
@@ -68,11 +63,9 @@ describe('Flujo completo de Deducciones Temporales', () => {
         timestamp: '2024-09-07T23:10:00.0000000',
         code: '00',
         message: 'Deducciones temporales generadas correctamente.',
-        response: [
-          { concept: 'Ajuste', amount: 100 }
-        ],
-        exception: null
-      }
+        response: [{ concept: 'Ajuste', amount: 100 }],
+        exception: null,
+      },
     });
 
     // ===== STAGE 1: /upload =====
@@ -81,35 +74,36 @@ describe('Flujo completo de Deducciones Temporales', () => {
         <Routes>
           <Route path="/upload" element={<FileUpload />} />
         </Routes>
-      </MemoryRouter>
+      </MemoryRouter>,
     );
     // Selección de periodo, upload y save (igual que antes)…
     const periodUp = screen.getByLabelText(/select-period/i);
     await userEvent.type(periodUp, '2022-12');
     const buf = fs.readFileSync(path.resolve(__dirname, 'data/assets.xlsx'));
-    const file = new File(
-      [buf],
-      'assets.xlsx',
-      { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }
-    );
+    const file = new File([buf], 'assets.xlsx', {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    });
     const inputFile = screen.getByLabelText(/subir archivo/i);
     await userEvent.upload(inputFile, file);
     userEvent.click(screen.getByRole('button', { name: /subir archivo/i }));
     await waitFor(() =>
-      expect(FinancialFixedAssetService.uploadService)
-        .toHaveBeenCalledWith(file, '2022-12-01', expect.any(Function))
+      expect(FinancialFixedAssetService.uploadService).toHaveBeenCalledWith(
+        file,
+        '2022-12-01',
+        expect.any(Function),
+      ),
     );
     await waitFor(() =>
-      expect(screen.getByRole('button', { name: /guardar información/i }))
-        .toBeEnabled()
+      expect(screen.getByRole('button', { name: /guardar información/i })).toBeEnabled(),
     );
     userEvent.click(screen.getByRole('button', { name: /guardar información/i }));
     await waitFor(() =>
-      expect(FinancialFixedAssetService.saveService)
-        .toHaveBeenCalledWith('2022-12-01', expect.any(Function))
+      expect(FinancialFixedAssetService.saveService).toHaveBeenCalledWith(
+        '2022-12-01',
+        expect.any(Function),
+      ),
     );
-    expect(screen.getByRole('alert'))
-      .toHaveTextContent('Información guardada correctamente.');
+    expect(screen.getByRole('alert')).toHaveTextContent('Información guardada correctamente.');
 
     cleanup();
 
@@ -128,15 +122,18 @@ describe('Flujo completo de Deducciones Temporales', () => {
             }
           />
         </Routes>
-      </MemoryRouter>
+      </MemoryRouter>,
     );
     // Selección de periodo y click Generar Proyección
     const periodProj = screen.getByLabelText(/select-period/i);
     await userEvent.type(periodProj, '2022-12');
     userEvent.click(screen.getByRole('button', { name: /generar proyección/i }));
     await waitFor(() =>
-      expect(FinancialFixedAssetService.generateProjectionService)
-        .toHaveBeenCalledWith('2022-12-01', { fileId: 'file-123' }, expect.any(Function))
+      expect(FinancialFixedAssetService.generateProjectionService).toHaveBeenCalledWith(
+        '2022-12-01',
+        { fileId: 'file-123' },
+        expect.any(Function),
+      ),
     );
     const alertProj = await screen.findByRole('alert');
     expect(alertProj).toHaveClass('alert alert-success');
@@ -150,7 +147,7 @@ describe('Flujo completo de Deducciones Temporales', () => {
         <Routes>
           <Route path="/temporary-deductions" element={<TemporaryDeductions />} />
         </Routes>
-      </MemoryRouter>
+      </MemoryRouter>,
     );
     // Seleccionar periodo para habilitar el botón
     const periodDed = screen.getByLabelText(/select-period/i);
@@ -158,15 +155,16 @@ describe('Flujo completo de Deducciones Temporales', () => {
     userEvent.click(screen.getByRole('button', { name: /generar proyección/i }));
 
     await waitFor(() =>
-      expect(FinancialFixedAssetService.generateTemporaryDeductionsService)
-        .toHaveBeenCalledWith('2022-12-01', '332', expect.any(Function))
+      expect(FinancialFixedAssetService.generateTemporaryDeductionsService).toHaveBeenCalledWith(
+        '2022-12-01',
+        '332',
+        expect.any(Function),
+      ),
     );
 
     // 📣 **Aquí solo comprobamos el alert de éxito**:
     const alertDed = await screen.findByRole('alert');
     expect(alertDed).toHaveClass('alert alert-success');
-    expect(alertDed).toHaveTextContent(
-      'Deducciones temporales generadas correctamente.'
-    );
+    expect(alertDed).toHaveTextContent('Deducciones temporales generadas correctamente.');
   });
 });

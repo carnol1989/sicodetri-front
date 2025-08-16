@@ -23,9 +23,7 @@ describe('PermanentAdditions component', () => {
     const [[props]] = ProjectionGenerator.mock.calls;
 
     expect(props.title).toBe('Generación de Adiciones Permanentes');
-    expect(props.serviceFn).toBe(
-      FinancialFixedAssetService.generatePermanentAdditionsService
-    );
+    expect(props.serviceFn).toBe(FinancialFixedAssetService.generatePermanentAdditionsService);
     expect(props.param).toBe('332');
   });
 

@@ -1,12 +1,6 @@
 // src/tests/integration/ReportTaxBook.integration.test.jsx
 import React from 'react';
-import {
-  render,
-  screen,
-  waitFor,
-  cleanup,
-  fireEvent
-} from '@testing-library/react';
+import { render, screen, waitFor, cleanup, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import fs from 'fs';
@@ -20,7 +14,7 @@ jest.mock('../../components/CustomDatePicker', () => ({ selected, onChange }) =>
     aria-label="select-period"
     type="month"
     value={selected ? selected.toISOString().slice(0, 7) : ''}
-    onChange={e => {
+    onChange={(e) => {
       const [y, m] = e.target.value.split('-');
       onChange(new Date(y, m - 1, 1));
     }}
@@ -31,7 +25,7 @@ jest.mock('../../services/FinancialFixedAssetService', () => ({
   __esModule: true,
   default: {
     uploadService: jest.fn(),
-    saveService:   jest.fn(),
+    saveService: jest.fn(),
     generateReportsService: jest.fn(),
   },
 }));
@@ -56,21 +50,21 @@ describe('Flujo completo Reporte: Libro Tributario de Activo Fijos', () => {
   test('Home → Upload → Save → Report → Exporta Excel con los 8 args', async () => {
     // STAGE 1: UPLOAD + SAVE
     FinancialFixedAssetService.uploadService.mockResolvedValue({
-      data: { code: '00', message: 'Archivo subido correctamente.' }
+      data: { code: '00', message: 'Archivo subido correctamente.' },
     });
     FinancialFixedAssetService.saveService.mockResolvedValue({
-      data: { code: '00', message: 'Información guardada correctamente.' }
+      data: { code: '00', message: 'Información guardada correctamente.' },
     });
 
     render(
       <MemoryRouter initialEntries={['/']}>
         <NavBar />
         <Routes>
-          <Route path="/"                element={<Home />} />
-          <Route path="/upload"          element={<FileUpload />} />
+          <Route path="/" element={<Home />} />
+          <Route path="/upload" element={<FileUpload />} />
           <Route path="/report-tax-book" element={<ReportTaxBook />} />
         </Routes>
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     // Ir a /upload
@@ -78,47 +72,55 @@ describe('Flujo completo Reporte: Libro Tributario de Activo Fijos', () => {
 
     // Seleccionar periodo
     fireEvent.change(screen.getByLabelText(/select-period/i), {
-      target: { value: '2023-07' }
+      target: { value: '2023-07' },
     });
 
     // Subir archivo
-    const buf  = fs.readFileSync(path.resolve(__dirname, 'data/assets.xlsx'));
-    const file = new File(
-      [buf],
-      'assets.xlsx',
-      { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }
-    );
+    const buf = fs.readFileSync(path.resolve(__dirname, 'data/assets.xlsx'));
+    const file = new File([buf], 'assets.xlsx', {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    });
     await userEvent.upload(screen.getByLabelText(/subir archivo/i), file);
     userEvent.click(screen.getByRole('button', { name: /subir archivo/i }));
 
     await waitFor(() =>
-      expect(FinancialFixedAssetService.uploadService)
-        .toHaveBeenCalledWith(file, '2023-07-01', expect.any(Function))
+      expect(FinancialFixedAssetService.uploadService).toHaveBeenCalledWith(
+        file,
+        '2023-07-01',
+        expect.any(Function),
+      ),
     );
 
     // Guardar info
     await waitFor(() =>
-      expect(screen.getByRole('button', { name: /guardar información/i })).toBeEnabled()
+      expect(screen.getByRole('button', { name: /guardar información/i })).toBeEnabled(),
     );
     userEvent.click(screen.getByRole('button', { name: /guardar información/i }));
     await waitFor(() =>
-      expect(FinancialFixedAssetService.saveService)
-        .toHaveBeenCalledWith('2023-07-01', expect.any(Function))
+      expect(FinancialFixedAssetService.saveService).toHaveBeenCalledWith(
+        '2023-07-01',
+        expect.any(Function),
+      ),
     );
 
     // STAGE 2: REPORT + EXPORT
     cleanup(); // desmontar el upload
 
     const fakeBlob = new Blob(['dummy'], {
-      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     });
 
     FinancialFixedAssetService.generateReportsService.mockImplementation(
       (
-        opt, yearFmt, mainCode, acctAcc,
-        startAcqFmt, endAcqFmt,
-        startUseFmt, endUseFmt,
-        onUploadProgress
+        opt,
+        yearFmt,
+        mainCode,
+        acctAcc,
+        startAcqFmt,
+        endAcqFmt,
+        startUseFmt,
+        endUseFmt,
+        onUploadProgress,
       ) => {
         // 1) Simular progreso
         onUploadProgress({ lengthComputable: true, loaded: 100, total: 100 });
@@ -126,7 +128,7 @@ describe('Flujo completo Reporte: Libro Tributario de Activo Fijos', () => {
         window.open('blob:fake-url');
         // 3) Devolver el blob como si viniera del servidor
         return Promise.resolve({ data: fakeBlob, code: '00', message: 'Reporte OK' });
-      }
+      },
     );
 
     // Stub del hook en ReportTaxBook
@@ -149,10 +151,15 @@ describe('Flujo completo Reporte: Libro Tributario de Activo Fijos', () => {
       disabled: false,
       generate: () =>
         FinancialFixedAssetService.generateReportsService(
-          '1','2025','AF-001','AC-123',
-          '2024-01-01','2024-12-01',
-          '2023-01-01','2023-12-01',
-          () => {}
+          '1',
+          '2025',
+          'AF-001',
+          'AC-123',
+          '2024-01-01',
+          '2024-12-01',
+          '2023-01-01',
+          '2023-12-01',
+          () => {},
         ),
     });
 
@@ -162,7 +169,7 @@ describe('Flujo completo Reporte: Libro Tributario de Activo Fijos', () => {
         <Routes>
           <Route path="/report-tax-book" element={<ReportTaxBook />} />
         </Routes>
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     // Pulsar “Exportar”
@@ -172,13 +179,17 @@ describe('Flujo completo Reporte: Libro Tributario de Activo Fijos', () => {
 
     // Verificar que el servicio se llamó con los 8 args
     await waitFor(() =>
-      expect(FinancialFixedAssetService.generateReportsService)
-        .toHaveBeenCalledWith(
-          '1','2025','AF-001','AC-123',
-          '2024-01-01','2024-12-01',
-          '2023-01-01','2023-12-01',
-          expect.any(Function)
-        )
+      expect(FinancialFixedAssetService.generateReportsService).toHaveBeenCalledWith(
+        '1',
+        '2025',
+        'AF-001',
+        'AC-123',
+        '2024-01-01',
+        '2024-12-01',
+        '2023-01-01',
+        '2023-12-01',
+        expect.any(Function),
+      ),
     );
 
     // Y que open recibió la URL fake

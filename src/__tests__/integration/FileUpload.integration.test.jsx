@@ -13,7 +13,7 @@ jest.mock('../../components/CustomDatePicker', () => ({ selected, onChange }) =>
     data-testid="period-input"
     type="date"
     value={selected ? selected.toISOString().split('T')[0] : ''}
-    onChange={e => onChange(new Date(e.target.value))}
+    onChange={(e) => onChange(new Date(e.target.value))}
   />
 ));
 jest.mock('../../services/FinancialFixedAssetService', () => ({
@@ -28,11 +28,9 @@ describe('Navegación Home → Cargar Archivo → Subir y Guardar', () => {
   beforeAll(() => {
     const filePath = path.resolve(__dirname, 'data', 'assets.xlsx');
     const fileBuffer = fs.readFileSync(filePath);
-    testFile = new File(
-      [fileBuffer],
-      'assets.xlsx',
-      { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }
-    );
+    testFile = new File([fileBuffer], 'assets.xlsx', {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    });
   });
 
   beforeEach(() => {
@@ -50,8 +48,8 @@ describe('Navegación Home → Cargar Archivo → Subir y Guardar', () => {
           code: '00',
           message: `Archivo subido correctamente: ${file.name}`,
           response: 1,
-          exception: null
-        }
+          exception: null,
+        },
       });
     });
     // Mock saveService
@@ -63,8 +61,8 @@ describe('Navegación Home → Cargar Archivo → Subir y Guardar', () => {
           code: '00',
           message: `Información guardada correctamente para el periodo: ${period}`,
           response: 1,
-          exception: null
-        }
+          exception: null,
+        },
       });
     });
 
@@ -78,13 +76,13 @@ describe('Navegación Home → Cargar Archivo → Subir y Guardar', () => {
     // 3) Llega a FileUpload
     await waitFor(() =>
       expect(
-        screen.getByRole('heading', { name: /cargar excel de activo fijos/i })
-      ).toBeInTheDocument()
+        screen.getByRole('heading', { name: /cargar excel de activo fijos/i }),
+      ).toBeInTheDocument(),
     );
 
     // 4) Selecciona periodo
     fireEvent.change(screen.getByTestId('period-input'), {
-      target: { value: periodValue }
+      target: { value: periodValue },
     });
 
     // 5) Sube el archivo
@@ -99,9 +97,7 @@ describe('Navegación Home → Cargar Archivo → Subir y Guardar', () => {
     // 7) Verifica alerta de subida
     const uploadAlert = await screen.findByRole('alert');
     expect(uploadAlert).toHaveClass('alert', 'alert-success');
-    expect(uploadAlert).toHaveTextContent(
-      `Archivo subido correctamente: ${testFile.name}`
-    );
+    expect(uploadAlert).toHaveTextContent(`Archivo subido correctamente: ${testFile.name}`);
 
     // 8) Click en "Guardar Información"
     const saveButton = screen.getByRole('button', { name: /guardar información/i });
@@ -111,8 +107,8 @@ describe('Navegación Home → Cargar Archivo → Subir y Guardar', () => {
     // 9) Espera explícita al cambio de texto en el mismo alert
     await waitFor(() =>
       expect(screen.getByRole('alert')).toHaveTextContent(
-        `Información guardada correctamente para el periodo: ${periodValue}`
-      )
+        `Información guardada correctamente para el periodo: ${periodValue}`,
+      ),
     );
     // Y sigue siendo alerta de éxito
     expect(screen.getByRole('alert')).toHaveClass('alert', 'alert-success');
@@ -121,11 +117,11 @@ describe('Navegación Home → Cargar Archivo → Subir y Guardar', () => {
     expect(FinancialFixedAssetService.uploadService).toHaveBeenCalledWith(
       testFile,
       periodValue,
-      expect.any(Function)
+      expect.any(Function),
     );
     expect(FinancialFixedAssetService.saveService).toHaveBeenCalledWith(
       periodValue,
-      expect.any(Function)
+      expect.any(Function),
     );
   });
 });

@@ -17,8 +17,7 @@ describe('ReportDetailDepreciation', () => {
       default: mockReportTemplate,
     }));
 
-    const ReportDetailDepreciation = require('../../../views/ReportDetailDepreciation')
-      .default;
+    const ReportDetailDepreciation = require('../../../views/ReportDetailDepreciation').default;
 
     render(<ReportDetailDepreciation />);
     expect(mockReportTemplate).toHaveBeenCalledTimes(1);
@@ -28,7 +27,7 @@ describe('ReportDetailDepreciation', () => {
         option: '2',
         withYear: false,
       },
-      {}
+      {},
     );
   });
 
@@ -36,20 +35,17 @@ describe('ReportDetailDepreciation', () => {
     jest.doMock('../../../components/ReportTemplate', () => ({
       __esModule: true,
       default: ({ title, option, withYear }) => (
-        <div data-testid="report-template">
-          {`${title}|${option}|${withYear}`}
-        </div>
+        <div data-testid="report-template">{`${title}|${option}|${withYear}`}</div>
       ),
     }));
 
-    const ReportDetailDepreciation = require('../../../views/ReportDetailDepreciation')
-      .default;
+    const ReportDetailDepreciation = require('../../../views/ReportDetailDepreciation').default;
 
     render(<ReportDetailDepreciation />);
     const tpl = screen.getByTestId('report-template');
     expect(tpl).toBeInTheDocument();
     expect(tpl).toHaveTextContent(
-      'Reporte: Detalle de Depreciación Financiera y Tributaria|2|false'
+      'Reporte: Detalle de Depreciación Financiera y Tributaria|2|false',
     );
   });
 });

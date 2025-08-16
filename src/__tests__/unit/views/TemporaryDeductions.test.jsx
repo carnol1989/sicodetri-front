@@ -14,17 +14,16 @@ describe('TemporaryDeductions component', () => {
   it('debe renderizar ProjectionGenerator exactamente una vez', () => {
     render(<TemporaryDeductions />);
     expect(ProjectionGenerator).toHaveBeenCalledTimes(1);
-  })
+  });
 
   it('se pasa a ProjectionGenerator los props correctos', () => {
     render(<TemporaryDeductions />);
-    const [[props]] = ProjectionGenerator.mock.calls;;
+    const [[props]] = ProjectionGenerator.mock.calls;
 
     expect(props.title).toBe('Generación de Deducciones Temporales');
-    expect(props.serviceFn).toBe(
-      FinancialFixedAssetService.generateTemporaryDeductionsService);
+    expect(props.serviceFn).toBe(FinancialFixedAssetService.generateTemporaryDeductionsService);
     expect(props.param).toBe('332');
-  })
+  });
 
   it('coincide con el snapshot', () => {
     const { asFragment } = render(<TemporaryDeductions />);

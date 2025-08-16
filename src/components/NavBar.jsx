@@ -1,8 +1,25 @@
 // src/components/NavBar.jsx
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
 
 const NavBar = () => {
+  const { login, logout, isAuthenticated } = useAuth();
+
+  const handleLogout = async () => {
+    try {
+      await fetch(`${process.env.REACT_APP_BASE_PATH_BACK}/logout`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+      });
+    } catch (_) {
+      /* ignore */
+    }
+    sessionStorage.removeItem('pkce_token');
+    if (typeof logout === 'function') logout();
+  };
+
   return (
     <>
       {/* Fixed navbar */}
@@ -83,6 +100,19 @@ const NavBar = () => {
                 </ul>
               </li>
             </ul>
+
+            {/* Aquí añadimos el botón de Login/Logout */}
+            <div className="d-flex">
+              {isAuthenticated ? (
+                <button className="btn btn-outline-light" onClick={handleLogout}>
+                  Logout
+                </button>
+              ) : (
+                <button className="btn btn-outline-light" onClick={() => login && login()}>
+                  Login
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </nav>
