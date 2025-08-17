@@ -1,9 +1,54 @@
-// src/views/FileUpload.js
+/**
+ * File upload page for SICODETRI-FRONT. <br/>
+ * Allows users to upload Excel files of financial fixed assets, select a period,
+ * and persist the data into the backend system. Displays progress, validation alerts,
+ * and success/error messages. <br/>
+ * Path: src/views/FileUpload.js
+ *
+ * @module FileUpload
+ * @requires module: react
+ * @requires module:../services/FinancialFixedAssetService
+ * @requires module:../components/CustomDatePicker
+ * @requires module: react-datepicker/dist/react-datepicker.css
+ *
+ * <b>Component</b>: {@link FileUpload} <br/>
+ * <b>Copyright</b>: &copy; 2024 EPS Grau. <br/>
+ * <b>Company</b>: EPS Grau. <br/>
+ *
+ * @author EPS Grau
+ * <br/>
+ * <u>Service Provider</u>: Consultor TI <br/>
+ * <u>Developed by</u>: <br/>
+ * <ul>
+ *   <li>Carlos Augusto Nole Machaca</li>
+ * </ul>
+ * <u>Changes</u>: <br/>
+ * <ul>
+ *   <li>Jun 06, 2025 (JSX) Component creation.</li>
+ * </ul>
+ *
+ * @version 1.0
+ */
 import React, { useState } from 'react';
 import FinancialFixedAssetService from '../services/FinancialFixedAssetService';
 import CustomDatePicker from '../components/CustomDatePicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
+/**
+ * FileUpload component. <br/>
+ * Main responsibilities: <br/>
+ * - Select a period using {@link CustomDatePicker}. <br/>
+ * - Upload Excel files to backend via {@link FinancialFixedAssetService.uploadService}. <br/>
+ * - Save data after validation via {@link FinancialFixedAssetService.saveService}. <br/>
+ * - Show upload progress and validation/error messages to the user. <br/>
+ *
+ * @function FileUpload
+ * @returns {JSX.Element} Rendered component with file input, progress bar, and action buttons.
+ *
+ * @example
+ * // Route definition
+ * <Route path="/upload" element={<FileUpload />} />
+ */
 const FileUpload = () => {
   const [selectedFiles, setSelectedFiles] = useState(undefined);
   const [currentFile, setCurrentFile] = useState(undefined);
@@ -14,10 +59,23 @@ const FileUpload = () => {
   const [showAlert, setShowAlert] = useState(false);
   const [activeSave, setActiveSave] = useState(true);
 
+  /**
+   * Handles file selection from the file input.
+   * @function selectFile
+   * @param {React.ChangeEvent<HTMLInputElement>} event - Change event from file input.
+   */
   const selectFile = (event) => {
     setSelectedFiles(event.target.files);
   };
 
+  /**
+   * Uploads the selected Excel file to the backend service. <br/>
+   * - Validates that a period has been selected. <br/>
+   * - Updates progress and feedback messages. <br/>
+   * - Handles both success and error responses. <br/>
+   *
+   * @function uploadFile
+   */
   const uploadFile = () => {
     let currentFile = selectedFiles[0];
 
@@ -53,6 +111,14 @@ const FileUpload = () => {
     setShowAlert(true);
   };
 
+  /**
+   * Saves the uploaded data for the selected period. <br/>
+   * - Validates that a period has been selected. <br/>
+   * - Sends request to backend via {@link FinancialFixedAssetService.saveService}. <br/>
+   * - Updates progress and feedback messages. <br/>
+   *
+   * @function saveDataFile
+   */
   const saveDataFile = () => {
     setProgress(0);
 

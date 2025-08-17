@@ -1,11 +1,87 @@
-// src/components/NavBar.jsx
+/**
+ * NavBar component for SICODETRI-FRONT. <br/>
+ * Provides the main navigation bar for the application, allowing access to: <br/>
+ * <ul>
+ *   <li>Home (brand logo redirect)</li>
+ *   <li>Cargar Archivo</li>
+ *   <li>Generar Proyección:
+ *     <ul>
+ *       <li>Deducciones Temporales</li>
+ *       <li>Adiciones Temporales</li>
+ *       <li>Adiciones Permanentes</li>
+ *     </ul>
+ *   </li>
+ *   <li>Reportes:
+ *     <ul>
+ *       <li>Libro Tributario de Activo Fijo</li>
+ *       <li>Detalle Depreciación Financiera y Tributaria</li>
+ *     </ul>
+ *   </li>
+ * </ul>
+ *
+ * Includes authentication actions (Login / Logout) handled via {@link useAuth}. <br/>
+ * Path: src/components/NavBar.jsx
+ *
+ * @module NavBar
+ * @requires module: react
+ * @requires module: react-router-dom
+ * @requires module:../hooks/useAuth
+ *
+ * <b>Component</b>: {@link NavBar} <br/>
+ * <b>Company</b>: EPS Grau. <br/>
+ * <b>Copyright</b>: &copy; 2024 EPS Grau. <br/>
+ *
+ * @author EPS Grau
+ * <br/>
+ * <u>Service Provider</u>: Consultor TI <br/>
+ * <u>Developed by</u>: <br/>
+ * <ul>
+ *   <li>Carlos Augusto Nole Machaca</li>
+ * </ul>
+ * <u>Changes</u>: <br/>
+ * <ul>
+ *   <li>Jun 06, 2025 (JSX) Component creation.</li>
+ * </ul>
+ *
+ * @version 1.0
+ */
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 
+/**
+ * Navigation bar component. <br/>
+ * Renders a fixed-top navigation bar with brand, links to features, dropdowns for
+ * projections and reports, and a dynamic login/logout button based on authentication state. <br/>
+ *
+ * Uses Bootstrap classes for styling and responsive behavior. <br/>
+ *
+ * @function
+ * @returns {JSX.Element} The navigation bar element.
+ *
+ * @example
+ * import NavBar from '../components/NavBar';
+ *
+ * function Layout() {
+ *   return (
+ *     <>
+ *       <NavBar />
+ *       <main className="container mt-4">Contenido principal</main>
+ *     </>
+ *   );
+ * }
+ */
 const NavBar = () => {
   const { login, logout, isAuthenticated } = useAuth();
 
+  /**
+   * Handles user logout by calling backend endpoint and clearing session token. <br/>
+   * If `logout` from {@link useAuth} is available, it is executed afterwards.
+   *
+   * @async
+   * @function
+   * @returns {Promise.<void>} Resolves when logout process is completed.
+   */
   const handleLogout = async () => {
     try {
       await fetch(`${process.env.REACT_APP_BASE_PATH_BACK}/logout`, {
