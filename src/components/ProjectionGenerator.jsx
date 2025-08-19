@@ -1,9 +1,67 @@
-// src/components/ProjectionGenerator.jsx
+/**
+ * ProjectionGenerator component for SICODETRI-FRONT. <br/>
+ * Provides a standardized UI to generate financial or tax projections
+ * by selecting a period and invoking a backend service. <br/>
+ *
+ * Behavior: <br/>
+ * <ul>
+ *   <li>Allows the user to select a period via {@link CustomDatePicker}.</li>
+ *   <li>Triggers the provided service function to generate projections with progress feedback.</li>
+ *   <li>Displays success or error alerts depending on backend response.</li>
+ *   <li>Shows a progress bar during the generation process.</li>
+ * </ul>
+ * Path: src/components/ProjectionGenerator.jsx
+ *
+ * @module ProjectionGenerator
+ * @requires module: react
+ * @requires module: prop-types
+ * @requires module:./CustomDatePicker
+ * @requires module: react-datepicker/dist/react-datepicker.css
+ *
+ * <b>Component</b>: {@link ProjectionGenerator} <br/>
+ * <b>Company</b>: EPS Grau <br/>
+ * <b>Copyright</b>: &copy; 2024 EPS Grau. <br/>
+ *
+ * @author EPS Grau
+ * <br/>
+ * <u>Service Provider</u>: Consultor TI <br/>
+ * <u>Developed by</u>: <br/>
+ * <ul>
+ *   <li>Carlos Augusto Nole Machaca</li>
+ * </ul>
+ * <u>Changes</u>: <br/>
+ * <ul>
+ *   <li>Jun 06, 2025 (JSX) Component creation.</li>
+ * </ul>
+ *
+ * @version 1.0
+ */
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import CustomDatePicker from './CustomDatePicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
+/**
+ * Renders a generic projection generator form. <br/>
+ * Integrates a date picker, progress bar, and success/error feedback. <br/>
+ *
+ * @function
+ * @param {Object} props - Component props.
+ * @param {string} props.title - The title of the projection generator (e.g. "Generación de Adiciones Temporales").
+ * @param {Function} props.serviceFn - Backend service function that generates the projection. Must return a Promise.
+ * @param {string} props.param - Parameter to be passed to the service function (e.g. asset code or "ALL").
+ * @returns {JSX.Element} The rendered projection generator component.
+ *
+ * @example
+ * import ProjectionGenerator from '../components/ProjectionGenerator';
+ * import FinancialFixedAssetService from '../services/FinancialFixedAssetService';
+ *
+ * <ProjectionGenerator
+ *   title="Generación de Deducciones Temporales"
+ *   serviceFn={FinancialFixedAssetService.generateTemporaryDeductionsService}
+ *   param="332"
+ * />
+ */
 const ProjectionGenerator = ({ title, serviceFn, param }) => {
   const [progress, setProgress] = useState(0);
   const [code, setCode] = useState('');

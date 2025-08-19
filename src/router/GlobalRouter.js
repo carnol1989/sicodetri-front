@@ -1,4 +1,43 @@
-// src/router/GlobalRouter.js
+/**
+ * Global router configuration for SICODETRI-FRONT. <br/>
+ * Defines application routes, integrates authentication checks via {@link PrivateRoute},
+ * and mounts top-level navigation through {@link NavBar}. <br/>
+ * Path: src/router/GlobalRouter.js
+ *
+ * @module GlobalRouter
+ * @requires module: react
+ * @requires module: react-router-dom
+ * @requires module:../hooks/useAuth
+ * @requires module:../components/NavBar
+ * @requires module:../components/PrivateRoute
+ * @requires module:../views/CallbackPage
+ * @requires module:../views/Home
+ * @requires module:../views/FileUpload
+ * @requires module:../views/TemporaryDeductions
+ * @requires module:../views/TemporaryAdditions
+ * @requires module:../views/PermanentAdditions
+ * @requires module:../views/ReportTaxBook
+ * @requires module:../views/ReportDetailDepreciation
+ * @requires module:../views/ErrorPage
+ *
+ * <b>Component</b>: {@link AppRouter} <br/>
+ * <b>Copyright</b>: &copy; 2024 EPS Grau. <br/>
+ * <b>Company</b>: EPS Grau. <br/>
+ *
+ * @author EPS Grau
+ * <br/>
+ * <u>Service Provider</u>: Consultor TI <br/>
+ * <u>Developed by</u>: <br/>
+ * <ul>
+ *   <li>Carlos Augusto Nole Machaca</li>
+ * </ul>
+ * <u>Changes</u>: <br/>
+ * <ul>
+ *   <li>Jun 06, 2025 (JSX) Component creation.</li>
+ * </ul>
+ *
+ * @version 1.0
+ */
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
@@ -17,6 +56,33 @@ import ReportDetailDepreciation from '../views/ReportDetailDepreciation';
 
 import ErrorPage from '../views/ErrorPage';
 
+/**
+ * AppRouter component. <br/>
+ * - Wraps the application inside {@link BrowserRouter}. <br/>
+ * - Renders {@link NavBar} globally. <br/>
+ * - Defines secure and public routes:
+ *   - `/callback`: OAuth2 callback page.
+ *   - `/error`: Error handler page.
+ *   - `/`: Home (protected by {@link PrivateRoute}).
+ *   - `/upload`: File upload (protected).
+ *   - `/temporary-deduction`: Temporary deductions (protected).
+ *   - `/temporary-addition`: Temporary additions (protected).
+ *   - `/permanent-addition`: Permanent additions (protected).
+ *   - `/report-tax-book`: Tax book report (protected).
+ *   - `/report-detail-depreciation`: Detailed depreciation report (protected).
+ *   - `*`: Any unknown path redirects to `/`.
+ * - Shows a loading state if authentication is still pending. <br/>
+ *
+ * @function AppRouter
+ * @returns {JSX.Element} Rendered router with all application routes.
+ *
+ * @example
+ * import AppRouter from './router/GlobalRouter';
+ *
+ * function App() {
+ *   return <AppRouter />;
+ * }
+ */
 export default function AppRouter() {
   const { isPending } = useAuth();
 

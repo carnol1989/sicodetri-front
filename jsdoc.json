@@ -1,0 +1,20 @@
+{
+  "source": {
+    "include": ["src", "webpack.config.js"],
+    "includePattern": "\\.(js|jsx|ts|tsx)$",
+    "excludePattern": "(^|\\/|\\\\)__(tests|mocks)__\\/|\\.test\\.(jsx?|tsx?)$"
+  },
+  "opts": {
+    "destination": "./docs",
+    "recurse": true,
+    "template": "node_modules/clean-jsdoc-theme",
+    "readme": "./README.md"
+  },
+  "plugins": [
+    "plugins/markdown",
+    "jsdoc-type-pratt-parser"
+  ],
+  "typescript": {
+    "moduleRoot": "src"
+  }
+}
