@@ -1,0 +1,27 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`App (aislado y con 100% coverage) snapshot del render aislado 1`] = `
+<DocumentFragment>
+  <div>
+    <div
+      data-testid="mock-error-boundary"
+    >
+      <div
+        data-testid="mock-tokenbridge"
+      >
+        TokenBridge Mock - items:0
+      </div>
+      <div
+        data-testid="mock-router"
+      >
+        Router Mock
+      </div>
+      <div
+        data-testid="mock-footer"
+      >
+        Footer Mockeado
+      </div>
+    </div>
+  </div>
+</DocumentFragment>
+`;
