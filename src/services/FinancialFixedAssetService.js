@@ -27,6 +27,8 @@
  */
 import http from '../http-common';
 
+const BASE = process.env.REACT_APP_URL_API_FINANCIAL_FIXED_ASSETS;
+
 /**
  * Uploads an Excel file with financial fixed assets for a given period.
  *
@@ -39,7 +41,7 @@ import http from '../http-common';
 const uploadService = (file, period, onUploadProgress) => {
   let formData = new FormData();
   formData.append('file', file);
-  const url = `${process.env.REACT_APP_URL_API_FINANCIAL_FIXED_ASSETS}/upload?period=${encodeURIComponent(period)}`;
+  const url = `${BASE}/upload?period=${encodeURIComponent(period)}`;
   return http.post(url, formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
@@ -57,7 +59,7 @@ const uploadService = (file, period, onUploadProgress) => {
  * @returns {Promise.<AxiosResponse>} Axios response with status and message.
  */
 const saveService = (period, onUploadProgress) => {
-  const url = `${process.env.REACT_APP_URL_API_FINANCIAL_FIXED_ASSETS}?period=${encodeURIComponent(period)}`;
+  const url = `${BASE}?period=${encodeURIComponent(period)}`;
   return http.post(url, {
     headers: {
       'Content-Type': 'application/json',
@@ -75,18 +77,17 @@ const saveService = (period, onUploadProgress) => {
  * @param {function} onUploadProgress - Callback to track request progress.
  * @returns {Promise.<AxiosResponse>} Axios response with projection data.
  */
-const generateTemporaryDeductionsService = (period, account, onUploadProgress) => {
-  const url = `${process.env.REACT_APP_URL_API_FINANCIAL_FIXED_ASSETS}/projection?type=TEMPORARY_DEDUCTIONS&period=${encodeURIComponent(period)}&account=${encodeURIComponent(account)}`;
-  return http.post(
-    url,
-    {},
-    {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      onUploadProgress,
-    },
-  );
+const generateTemporaryDeductionsService = (period, pageSize, onUploadProgress) => {
+  const params = new URLSearchParams({
+    type: 'TEMPORARY_DEDUCTIONS',
+    period,
+  });
+  if (pageSize && String(pageSize).trim() !== '') params.append('pageSize', pageSize);
+  const url = `${BASE}/projection?${params.toString()}`;
+  return http.post(url, {}, {
+    headers: { 'Content-Type': 'application/json' },
+    onUploadProgress, // opcional: no habrá progreso real (request vacío)
+  });
 };
 
 /**
@@ -98,18 +99,17 @@ const generateTemporaryDeductionsService = (period, account, onUploadProgress) =
  * @param {function} onUploadProgress - Callback to track request progress.
  * @returns {Promise.<AxiosResponse>} Axios response with projection data.
  */
-const generateTemporaryAdditionsService = (period, account, onUploadProgress) => {
-  const url = `${process.env.REACT_APP_URL_API_FINANCIAL_FIXED_ASSETS}/projection?type=TEMPORARY_ADDITIONS&period=${encodeURIComponent(period)}&account=${encodeURIComponent(account)}`;
-  return http.post(
-    url,
-    {},
-    {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      onUploadProgress,
-    },
-  );
+const generateTemporaryAdditionsService = (period, pageSize, onUploadProgress) => {
+  const params = new URLSearchParams({
+    type: 'TEMPORARY_ADDITIONS',
+    period,
+  });
+  if (pageSize && String(pageSize).trim() !== '') params.append('pageSize', pageSize);
+  const url = `${BASE}/projection?${params.toString()}`;
+  return http.post(url, {}, {
+    headers: { 'Content-Type': 'application/json' },
+    onUploadProgress,
+  });
 };
 
 /**
@@ -121,18 +121,17 @@ const generateTemporaryAdditionsService = (period, account, onUploadProgress) =>
  * @param {function} onUploadProgress - Callback to track request progress.
  * @returns {Promise.<AxiosResponse>} Axios response with projection data.
  */
-const generatePermanentAdditionsService = (period, account, onUploadProgress) => {
-  const url = `${process.env.REACT_APP_URL_API_FINANCIAL_FIXED_ASSETS}/projection?type=PERMANENT_ADDITIONS&period=${encodeURIComponent(period)}&account=${encodeURIComponent(account)}`;
-  return http.post(
-    url,
-    {},
-    {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      onUploadProgress,
-    },
-  );
+const generatePermanentAdditionsService = (period, pageSize, onUploadProgress) => {
+  const params = new URLSearchParams({
+    type: 'PERMANENT_ADDITIONS',
+    period,
+  });
+  if (pageSize && String(pageSize).trim() !== '') params.append('pageSize', pageSize);
+  const url = `${BASE}/projection?${params.toString()}`;
+  return http.post(url, {}, {
+    headers: { 'Content-Type': 'application/json' },
+    onUploadProgress,
+  });
 };
 
 /**
@@ -184,7 +183,7 @@ const generateReportsService = async (
     .join('&');
 
   // Construye la URL
-  const url = `${process.env.REACT_APP_URL_API_FINANCIAL_FIXED_ASSETS}/report?${encodedParams}`;
+  const url = `${BASE}/report?${encodedParams}`;
 
   try {
     // Realiza la solicitud GET para descargar el archivo

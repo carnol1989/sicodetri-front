@@ -48,7 +48,7 @@ const TemporaryDeductions = () => (
   <ProjectionGenerator
     title="Generación de Deducciones Temporales"
     serviceFn={FinancialFixedAssetService.generateTemporaryDeductionsService}
-    param="332"
+    param="1000"
   />
 );
 

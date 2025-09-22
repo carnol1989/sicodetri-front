@@ -81,14 +81,11 @@ const ProjectionGenerator = ({ title, serviceFn, param }) => {
 
     const periodFormatted = period.toISOString().split('T')[0];
 
-    serviceFn(periodFormatted, param, (event) => {
-      if (event.lengthComputable) {
-        setProgress(Math.round((100 * event.loaded) / event.total));
-      }
-    })
+    serviceFn(periodFormatted, param, () => {})
       .then((response) => {
         setCode(response.data.code);
         setMessage(response.data.message);
+        setProgress(100);
       })
       .catch(() => {
         setCode('');
@@ -150,7 +147,7 @@ const ProjectionGenerator = ({ title, serviceFn, param }) => {
 ProjectionGenerator.propTypes = {
   title: PropTypes.string.isRequired,
   serviceFn: PropTypes.func.isRequired,
-  param: PropTypes.string.isRequired,
+  param: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
 };
 
 export default ProjectionGenerator;

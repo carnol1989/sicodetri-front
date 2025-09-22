@@ -48,7 +48,7 @@ const PermanentAdditions = () => (
   <ProjectionGenerator
     title="Generación de Adiciones Permanentes"
     serviceFn={FinancialFixedAssetService.generatePermanentAdditionsService}
-    param="332"
+    param="1000"
   />
 );
 

@@ -48,7 +48,7 @@ const TemporaryAdditions = () => (
   <ProjectionGenerator
     title="Generación de Adiciones Temporales"
     serviceFn={FinancialFixedAssetService.generateTemporaryAdditionsService}
-    param="ALL"
+    param="1000"
   />
 );
 
