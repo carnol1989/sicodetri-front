@@ -84,10 +84,14 @@ const generateTemporaryDeductionsService = (period, pageSize, onUploadProgress) 
   });
   if (pageSize && String(pageSize).trim() !== '') params.append('pageSize', pageSize);
   const url = `${BASE}/projection?${params.toString()}`;
-  return http.post(url, {}, {
-    headers: { 'Content-Type': 'application/json' },
-    onUploadProgress, // opcional: no habrá progreso real (request vacío)
-  });
+  return http.post(
+    url,
+    {},
+    {
+      headers: { 'Content-Type': 'application/json' },
+      onUploadProgress, // opcional: no habrá progreso real (request vacío)
+    },
+  );
 };
 
 /**
@@ -106,10 +110,14 @@ const generateTemporaryAdditionsService = (period, pageSize, onUploadProgress) =
   });
   if (pageSize && String(pageSize).trim() !== '') params.append('pageSize', pageSize);
   const url = `${BASE}/projection?${params.toString()}`;
-  return http.post(url, {}, {
-    headers: { 'Content-Type': 'application/json' },
-    onUploadProgress,
-  });
+  return http.post(
+    url,
+    {},
+    {
+      headers: { 'Content-Type': 'application/json' },
+      onUploadProgress,
+    },
+  );
 };
 
 /**
@@ -128,10 +136,14 @@ const generatePermanentAdditionsService = (period, pageSize, onUploadProgress) =
   });
   if (pageSize && String(pageSize).trim() !== '') params.append('pageSize', pageSize);
   const url = `${BASE}/projection?${params.toString()}`;
-  return http.post(url, {}, {
-    headers: { 'Content-Type': 'application/json' },
-    onUploadProgress,
-  });
+  return http.post(
+    url,
+    {},
+    {
+      headers: { 'Content-Type': 'application/json' },
+      onUploadProgress,
+    },
+  );
 };
 
 /**
